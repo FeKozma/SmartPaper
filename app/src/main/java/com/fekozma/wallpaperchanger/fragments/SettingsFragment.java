@@ -4,8 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,23 +16,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import com.fekozma.wallpaperchanger.R;
-import com.fekozma.wallpaperchanger.api.HttpClient;
-import com.fekozma.wallpaperchanger.api.NominatimService;
 import com.fekozma.wallpaperchanger.database.DBLog;
 import com.fekozma.wallpaperchanger.databinding.SettingsBinding;
-import com.fekozma.wallpaperchanger.util.ContextUtil;
 import com.fekozma.wallpaperchanger.util.LocationUtil;
-import com.fekozma.wallpaperchanger.util.NetworkUtil;
 import com.fekozma.wallpaperchanger.util.SharedPreferencesUtil;
-
-import org.osmdroid.util.GeoPoint;
-
-import java.util.Locale;
-import java.util.concurrent.Executors;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class SettingsFragment extends Fragment {
 
