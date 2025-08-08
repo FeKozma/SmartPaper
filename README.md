@@ -1,4 +1,6 @@
-# Smart Paper
+# <img src="app/src/main/ic_launcher-playstore.png" alt="App Icon" width="40" height="40" style="vertical-align:middle; margin-left:10px;"/> Smart Paper 
+
+
 
 An Android application that lets you upload and tag images with weather, date, and other criteria — then automatically sets your device background based on the current conditions.
 
