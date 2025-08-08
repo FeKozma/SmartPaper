@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homescreen">
+
+    <fragment
+        android:id="@+id/homescreen"
+        android:name="com.fekozma.wallpaperchanger.fragments.ImageListFragment"
+        android:label="@string/homescreen_label"
+        tools:layout="@layout/image_list">
+        <action
+            android:id="@+id/action_to_settingsFragment"
+            app:destination="@id/action_settings" />
+        <action
+            android:id="@+id/action_homescreen_to_edit_tags"
+            app:destination="@id/edit_tags" />
+        <action
+            android:id="@+id/action_to_logFragment"
+            app:destination="@id/action_log" />
+    </fragment>
+    <fragment
+        android:id="@+id/action_settings"
+        android:name="com.fekozma.wallpaperchanger.fragments.SettingsFragment"
+        android:label="@string/settings_title"
+        tools:layout="@layout/settings">
+
+        <action
+            android:id="@+id/action_to_homescreen"
+            app:destination="@id/homescreen" />
+        <action
+            android:id="@+id/action_to_logFragment"
+            app:destination="@id/action_log" />
+    </fragment>
+    <fragment
+        android:id="@+id/action_log"
+        android:name="com.fekozma.wallpaperchanger.fragments.LogFragment"
+        android:label="@string/log_title"
+        tools:layout="@layout/logs">
+
+        <action
+            android:id="@+id/action_to_homescreen"
+            app:destination="@id/homescreen" />
+        <action
+            android:id="@+id/action_to_settingsFragment"
+            app:destination="@id/action_settings" />
+    </fragment>
+    <fragment
+        android:id="@+id/edit_tags"
+        android:name="com.fekozma.wallpaperchanger.fragments.EditTagsFragment"
+        android:label="Edit"
+        tools:layout="@layout/edit_tags">
+
+        <argument android:name="images"
+            app:argType="com.fekozma.wallpaperchanger.database.DBImage[]"
+            />
+
+        <action
+            android:id="@+id/action_to_homescreen"
+            app:destination="@id/homescreen" />
+        <action
+            android:id="@+id/action_to_settingsFragment"
+            app:destination="@id/action_settings" />
+        <action
+            android:id="@+id/action_to_logFragment"
+            app:destination="@id/action_log" />
+    </fragment>
+</navigation>
