@@ -10,4 +10,5 @@
     <color name="weekday">#AA3BBD</color>
     <color name="log_warn">#81FFEB3B</color>
     <color name="log_error">#80F44336</color>
+    <color name="location">#9877A0</color>
 </resources>

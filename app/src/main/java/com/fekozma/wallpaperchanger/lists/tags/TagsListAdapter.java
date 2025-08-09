@@ -16,11 +16,13 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.fekozma.wallpaperchanger.R;
 import com.fekozma.wallpaperchanger.database.DBImage;
 import com.fekozma.wallpaperchanger.database.StaticValues;
+import com.fekozma.wallpaperchanger.jobs.conditions.ConditionalImagesAndTags;
 import com.fekozma.wallpaperchanger.util.ContextUtil;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class TagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
@@ -123,9 +125,16 @@ public class TagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 	private void setTags() {
 		tags = new ArrayList<>();
 		for (StaticValues value : StaticValues.values()) {
-			StaticValues.getCommonSelections(value, this.images).forEach(tag -> {
-				this.tags.add(new TagItem(tag.getName(), value.getColor()));
-			});
+			if (value.getCondition() instanceof ConditionalImagesAndTags) {
+				ConditionalImagesAndTags conditionalImagesAndTags = (ConditionalImagesAndTags) value.getCondition();
+				conditionalImagesAndTags.getTags(Arrays.asList(images)).forEach(tag -> {
+					this.tags.add(new TagItem(tag, value.getColor()));
+				});
+			} else {
+				StaticValues.getCommonSelections(value, this.images).forEach(tag -> {
+					this.tags.add(new TagItem(tag.getName(), value.getColor()));
+				});
+			}
 		}
 	}
 
