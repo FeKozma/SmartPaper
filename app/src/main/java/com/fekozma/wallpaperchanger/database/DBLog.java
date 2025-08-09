@@ -57,7 +57,7 @@ public class DBLog extends DBManager {
 		}
 
 		public String getName() {
-			return name;
+			return this.name;
 		}
 	}
 

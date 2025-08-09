@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
 
 public class EditTagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 
-	private List<String> tags;
-	private StaticValues val;
+	private final List<String> tags;
+	private final StaticValues val;
 	private DBImage[] images;
 
 	private int selectedId;
@@ -39,13 +39,14 @@ public class EditTagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 
 	@Override
 	public void onBindViewHolder(@NonNull TagsListHolder holder, int position) {
-		int i = holder.getBindingAdapterPosition();
+		// The adapter position of the item if it still exists in the adapter. NO_POSITION if item has been removed from the adapter, RecyclerView.Adapter.notifyDataSetChanged() has been called after the last layout pass or the ViewHolder has already been recycled.
+		int bindingAdapterPosition = holder.getBindingAdapterPosition();
 
 		long selections = Arrays.stream(images)
-			.filter(image -> StaticValues.hasTag(tags.get(i), image))
+			.filter(image -> StaticValues.hasTag(tags.get(bindingAdapterPosition), image))
 			.count();
 
-		holder.setTag(tags.get(i));
+		holder.setTag(tags.get(bindingAdapterPosition));
 		holder.setIcon(R.drawable.add_circle_24dp);
 		holder.setNumber();
 		holder.setBackground(val.getColor());
@@ -56,13 +57,13 @@ public class EditTagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 				@Override
 				public void onClick(View view) {
 					images = Arrays.stream(images).peek(image -> {
-						DBImage.db.removeImageTag(image, tags.get(i));
+						DBImage.db.removeImageTag(image, tags.get(bindingAdapterPosition));
 					}).map(image -> DBImage.db.getImageByName(image.image))
 						.collect(Collectors.toList()).toArray(new DBImage[0]);
 
-					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Removed tag: " + tags.get(i) + " from " + images.length + " images");
+					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Removed tag: " + tags.get(bindingAdapterPosition) + " from " + images.length + " images");
 
-					onBindViewHolder(holder, i);
+					onBindViewHolder(holder, bindingAdapterPosition);
 				}
 			});
 
@@ -72,12 +73,12 @@ public class EditTagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 				public void onClick(View view) {
 
 					images = Arrays.stream(images).peek(image -> {
-							DBImage.db.upsertImageTag(image, tags.get(i));
+							DBImage.db.upsertImageTag(image, tags.get(bindingAdapterPosition));
 						}).map(image -> DBImage.db.getImageByName(image.image))
 						.collect(Collectors.toList()).toArray(new DBImage[0]);
-					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Added tag: " + tags.get(i) + " on " + images.length + " images");
+					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Added tag: " + tags.get(bindingAdapterPosition) + " on " + images.length + " images");
 
-					onBindViewHolder(holder, i);
+					onBindViewHolder(holder, bindingAdapterPosition);
 				}
 			});
 		}

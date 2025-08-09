@@ -1,7 +1,5 @@
 package com.fekozma.wallpaperchanger.util;
 
-import static android.app.ProgressDialog.show;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
@@ -34,7 +32,7 @@ import java.util.zip.ZipOutputStream;
 
 public class ZipUtil {
 
-	private static TextView progressText;
+	private static TextView progressText; // TODO: Android context class would be a memory leak here. "A static field will leak contexts."
 	private static AlertDialog dialog;
 	private static int count = 0;
 	private static Handler mainHandler = new Handler(Looper.getMainLooper());
@@ -53,7 +51,7 @@ public class ZipUtil {
 				deleteRecursive(wallpapersDir);
 				if (dbFile.exists()) dbFile.delete();
 
-				// 3. Open ZIP input stream
+				// 3. Open ZIS input stream
 				InputStream inputStream = context.getContentResolver().openInputStream(zipUri);
 				ZipInputStream zis = new ZipInputStream(new BufferedInputStream(inputStream));
 				ZipEntry entry;
@@ -67,15 +65,16 @@ public class ZipUtil {
 					} else if (name.equals("database/wallpaperchanger.db")) {
 						outFile = dbFile;
 					} else {
-						continue; // skip unknown entries
+						continue; // Skip unknown entries.
 					}
 
 					// Ensure parent folders exist
 					if (entry.isDirectory()) {
-						outFile.mkdirs();
+						outFile.mkdirs(); // TODO: Check the outcome. Perhaps create a util for it?
 					} else {
 						File parent = outFile.getParentFile();
-						if (parent != null && !parent.exists()) parent.mkdirs();
+						if (parent != null && !parent.exists())
+							parent.mkdirs(); // TODO: Check outcome.
 
 						FileOutputStream fos = new FileOutputStream(outFile);
 						byte[] buffer = new byte[1024];
@@ -93,7 +92,7 @@ public class ZipUtil {
 				mainHandler.post(() -> {
 					Toast.makeText(context, "Import succeeded, restarting application", Toast.LENGTH_LONG).show();
 				});
-				throw new RuntimeException("Import succeeded\nThis is intential. Not beautiful, but it works");
+				throw new RuntimeException("[RuntimeException] Import succeeded\nThis is intentional. Not beautiful, but it works.");
 
 			} catch (IOException e) {
 				mainHandler.post(() -> {

@@ -83,23 +83,24 @@ public class LocationUtil {
 
 		dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
-
 		dialog.show();
 
 		mapViewLayout.findViewById(com.fekozma.wallpaperchanger.R.id.close).setOnClickListener(v -> dialog.dismiss());
-		mapViewLayout.findViewById(R.id.posiviveButton).setOnClickListener(v -> {
+		mapViewLayout.findViewById(R.id.posiviveButton).setOnClickListener(view -> {
+
 			IGeoPoint selectedPoint = marker.getPosition();
 			double lat;
 			double lon;
+
 			if (selectedPoint != null && (lat = selectedPoint.getLatitude()) != 0 && (lon = selectedPoint.getLongitude()) != 0) {
 
-				DBLog.db.addLog(DBLog.LEVELS.DEBUG, "user commited: Lat: " + lat + ", Lon: " + lon);
+				DBLog.db.addLog(DBLog.LEVELS.DEBUG, "User commited: Lat: " + lat + ", Lon: " + lon);
 
 				SharedPreferencesUtil.setString(SharedPreferencesUtil.KEYS.LOCATION_LAT, lat + "");
 				SharedPreferencesUtil.setString(SharedPreferencesUtil.KEYS.LOCATION_LONG, lon + "");
 				dialog.dismiss();
 			} else {
-				Toast.makeText(v.getContext(), "Please select a location", Toast.LENGTH_SHORT).show();
+				Toast.makeText(view.getContext(), "Please select a location", Toast.LENGTH_SHORT).show();
 			}
 		});
 

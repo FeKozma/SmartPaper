@@ -9,7 +9,6 @@ import com.fekozma.wallpaperchanger.util.LocationUtil;
 import com.fekozma.wallpaperchanger.util.SharedPreferencesUtil;
 import com.fekozma.wallpaperchanger.BuildConfig;
 
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,7 +30,7 @@ public class WeatherCondition extends ConditionalImages{
 				return;
 			}
 			WeatherApi weatherApi = HttpClient.getWeatherApi();
-			DBLog.db.addLog(DBLog.LEVELS.DEBUG, "getting weather");
+			DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Retrieving weather information.");
 			Call<WeatherApi.Response> call = weatherApi.getWeather(location.getLatitude(), location.getLongitude(), apiKey, "metric");
 
 			call.enqueue(new Callback<WeatherApi.Response>() {

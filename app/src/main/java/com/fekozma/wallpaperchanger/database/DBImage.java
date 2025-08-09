@@ -93,8 +93,8 @@ public class DBImage extends DBManager implements Parcelable {
 
 	public void upsertImage(String image, String[] tags) {
 		int rowsAffected;
-		synchronized (DBManager.DATABASE_NAME) {
 
+		synchronized (DBManager.DATABASE_NAME) {
 			SQLiteDatabase db = getWritableDatabase();
 
 			if (tags == null) {
@@ -245,7 +245,7 @@ public class DBImage extends DBManager implements Parcelable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(image);
+		return Objects.hashCode(this.image);
 	}
 
 	public void deleteTags(DBImage[] selected) {

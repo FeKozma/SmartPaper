@@ -22,11 +22,9 @@ public class LogFragment extends Fragment {
 		@NonNull LayoutInflater inflater, ViewGroup container,
 		Bundle savedInstanceState
 	) {
-
 		binding = LogsBinding.inflate(inflater, container, false);
 		DBLog.db.addLog(DBLog.LEVELS.DEBUG, "-> Logs");
 		return binding.getRoot();
-
 	}
 
 	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
@@ -41,5 +39,4 @@ public class LogFragment extends Fragment {
 		super.onDestroyView();
 		binding = null;
 	}
-
 }

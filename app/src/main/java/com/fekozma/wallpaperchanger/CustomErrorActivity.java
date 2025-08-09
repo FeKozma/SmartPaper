@@ -18,7 +18,6 @@ public class CustomErrorActivity extends AppCompatActivity {
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-
 		String stackTrace =  CustomActivityOnCrash.getStackTraceFromIntent(getIntent());
 
 		DBLog.db.addLog(DBLog.LEVELS.ERROR, "APP CRASH\n" + stackTrace);
@@ -35,5 +34,4 @@ public class CustomErrorActivity extends AppCompatActivity {
 
 		CustomActivityOnCrash.restartApplication(CustomErrorActivity.this, config);
 	}
-
 }

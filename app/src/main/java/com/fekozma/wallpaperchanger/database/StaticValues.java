@@ -20,8 +20,8 @@ public enum StaticValues {
 	WEEKDAY("weekday", R.color.weekday, new WeekdayCondition(), List.of(StaticTags.WEEKDAY_MONDAY, StaticTags.WEEKDAY_TUESDAY, StaticTags.WEEKDAY_WEDNESDAY, StaticTags.WEEKDAY_THURSDAY, StaticTags.WEEKDAY_FRIDAY, StaticTags.WEEKDAY_SATURDAY, StaticTags.WEEKDAY_SUNDAY));
 
 	private final ConditionalImages condition;
-	private String category;
-	private List<StaticTags> tags;
+	private final String category;
+	private final List<StaticTags> tags;
 	private @ColorInt int color;
 	StaticValues(String category, int color, ConditionalImages condition, List<StaticTags> tags) {
 		this.condition = condition;
@@ -30,9 +30,8 @@ public enum StaticValues {
 		this.color = color;
 	}
 
-
 	public static List<StaticTags> getSelections(StaticValues val, DBImage image) {
-		List tags = List.of(image.tags);
+		List<String> tags = List.of(image.tags);
 		return val.tags.stream().filter(tag -> tags.contains(tag.getName())).collect(Collectors.toList());
 	}
 
@@ -60,6 +59,7 @@ public enum StaticValues {
 	public String getCategory() {
 		return category;
 	}
+
 	public List<StaticTags> getTags() {
 		return tags;
 	}

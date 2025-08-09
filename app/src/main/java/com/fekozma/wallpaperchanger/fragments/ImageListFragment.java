@@ -47,10 +47,8 @@ public class ImageListFragment extends Fragment {
 		@NonNull LayoutInflater inflater, ViewGroup container,
 		Bundle savedInstanceState
 	) {
-
 		binding = ImageListBinding.inflate(inflater, container, false);
 		return binding.getRoot();
-
 	}
 
 	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
@@ -80,14 +78,12 @@ public class ImageListFragment extends Fragment {
 		});
 		binding.imageList.setAdapter(adapter);
 
-
 		setupFabAdd();
 		setupSystemBarListerner();
 
 		setupEditButton();
 		setupDeleteButton();
 		setupCloseButton();
-
 	}
 
 	@Override
@@ -102,8 +98,6 @@ public class ImageListFragment extends Fragment {
 		super.onStop();
 		handler.removeCallbacks(imageSwitcher); // Stop when not visible
 	}
-
-
 
 	private int currentIndex = 1;
 	private final int[] iconResIds = {
@@ -121,6 +115,7 @@ public class ImageListFragment extends Fragment {
 				.alpha(0f)
 				.setDuration(300)
 				.withEndAction(() -> {
+
 					// Switch image when faded out
 					Activity activity = getActivity();
 					if (activity == null || activity.isFinishing()) {
@@ -169,26 +164,26 @@ public class ImageListFragment extends Fragment {
 
 	private void setupDeleteButton() {
 		binding.imageListMenuDelee.setOnClickListener(view -> {
-			int nrSelections = adapter.getSelected().length;
-			AlertDialog dialog2 = new AlertDialog.Builder(getContext())
+			int imagesSelectedLength = adapter.getSelected().length;
+
+			AlertDialog dialogDeleteImages = new AlertDialog.Builder(getContext())
 				.setPositiveButton("Delete images", (d, v) -> {
 					if (DBImage.db.deleteImages(adapter.getSelected())) {
 						adapter.notifySelectedRemovedImage();
 						setHelpText();
-						DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Deleted " + nrSelections + " images");
+						DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Deleted " + imagesSelectedLength + " images");
 					} else {
-						DBLog.db.addLog(DBLog.LEVELS.ERROR, "Failed to delete " + nrSelections + " images");
+						DBLog.db.addLog(DBLog.LEVELS.ERROR, "Failed to delete " + imagesSelectedLength + " images");
 						Snackbar.make(binding.getRoot(), "Some error occurred while deleting images", Snackbar.LENGTH_LONG).show();
 					}
-					;
 				})
 				.setNeutralButton("Delete tags", (d, v) -> {
 					DBImage.db.deleteTags(adapter.getSelected());
-					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Deleted tags for " + nrSelections + " images");
+					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Deleted tags for " + imagesSelectedLength + " images");
 					adapter.notifySelectedRemovedTags();
 				}).create();
-			dialog2.getWindow().setBackgroundDrawableResource(R.drawable.dialog_background);
-			dialog2.show();
+			dialogDeleteImages.getWindow().setBackgroundDrawableResource(R.drawable.dialog_background);
+			dialogDeleteImages.show();
 		});
 	}
 

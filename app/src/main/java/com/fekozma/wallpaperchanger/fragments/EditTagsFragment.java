@@ -31,26 +31,23 @@ public class EditTagsFragment extends Fragment {
 
 	public static final String ARG_IMAGES = "images";
 	private EditTagsBinding binding;
-
-	DBImage[] images;
+	private DBImage[] images;
 
 	@Override
 	public View onCreateView(
 		@NonNull LayoutInflater inflater, ViewGroup container,
 		Bundle savedInstanceState
 	) {
-
 		Bundle bundle = getArguments();
 		images = bundle.getParcelable(ARG_IMAGES, DBImage[].class);
 		if (images == null) {
 			images = new DBImage[0];
-
 		} else {
-			DBLog.db.addLog(DBLog.LEVELS.DEBUG, "-> Ediiting " + images.length + " images");
+			DBLog.db.addLog(DBLog.LEVELS.DEBUG, "-> Editing " + images.length + " images");
 		}
+
 		binding = EditTagsBinding.inflate(inflater, container, false);
 		return binding.getRoot();
-
 	}
 
 	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
@@ -58,12 +55,11 @@ public class EditTagsFragment extends Fragment {
 			NavController navcontroller = Navigation.findNavController(requireView());
 			navcontroller.navigate(R.id.action_to_homescreen);
 		}
+
 		super.onViewCreated(view, savedInstanceState);
 
 		binding.editTagsImageList.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-
 		binding.editTagsImageList.setAdapter(new ImageTagEditorListAdapter(List.of(images)));
-
 
 		FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(getContext());
 
@@ -71,10 +67,9 @@ public class EditTagsFragment extends Fragment {
 		layoutManager.setFlexWrap(FlexWrap.WRAP);
 		layoutManager.setAlignItems(AlignItems.STRETCH);
 		layoutManager.setJustifyContent(JustifyContent.FLEX_START);
+
 		binding.editTagsList.setLayoutManager(layoutManager);
-
 		binding.editTagsList.setAdapter(new TagsListAdapter(images, getActivity()));
-
 	}
 
 	@Override

@@ -263,18 +263,22 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	private void checkPermissions() {
-		if (SharedPreferencesUtil.getString(SharedPreferencesUtil.KEYS.LOCATION_LAT) != null && SharedPreferencesUtil.getString(SharedPreferencesUtil.KEYS.LOCATION_LONG) != null) {
+
+		// TODO: Do nothing if lat and long is null? Should be a better way.
+		if (SharedPreferencesUtil.getString(SharedPreferencesUtil.KEYS.LOCATION_LAT) != null
+				&& SharedPreferencesUtil.getString(SharedPreferencesUtil.KEYS.LOCATION_LONG) != null) {
 			return;
 		}
 
 		if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 			AlertDialog dialog = new AlertDialog.Builder(this).setTitle("GPS Permission")
-				.setMessage("This app uses position data to retriev weather information, eighter from your phones GPS tracker or a selected location.\n\nYou can change your preference later in Settings.")
-				.setPositiveButton("Grant GPS premission", (d, i) -> {
+				.setMessage("This app uses position data to retrieve weather information. It is either through your phone's tracker GPS (if permission is granted) or from a selected location.\n\nYou can change your preference later in Settings.")
+				.setPositiveButton("Grant GPS permission", (d, i) -> {
 					ActivityCompat.requestPermissions(
 						this,
 						new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
 						LOCATION_PERMISSION_REQUEST_CODE);
+
 					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
 						ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
@@ -306,7 +310,6 @@ public class MainActivity extends AppCompatActivity {
 			dialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_background);
 
 			dialog.show();
-
 		}
 	}
 }

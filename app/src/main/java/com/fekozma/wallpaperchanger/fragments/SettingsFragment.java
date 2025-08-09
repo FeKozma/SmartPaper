@@ -45,7 +45,6 @@ public class SettingsFragment extends Fragment {
 		binding = SettingsBinding.inflate(inflater, container, false);
 		DBLog.db.addLog(DBLog.LEVELS.DEBUG, "-> Settings");
 		return binding.getRoot();
-
 	}
 
 	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
@@ -69,7 +68,7 @@ public class SettingsFragment extends Fragment {
 
 		binding.settingsPhonePositioningSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
-			public void onCheckedChanged(@NonNull CompoundButton compoundButton, boolean b) {
+			public void onCheckedChanged(@NonNull CompoundButton compoundButton, boolean b) { // TODO: Change the variable 'b' to something understanding.
 				if (!isPermitted && b) {
 					AlertDialog dialog = new AlertDialog.Builder(getContext())
 						.setTitle("GPS Permission")
@@ -77,8 +76,10 @@ public class SettingsFragment extends Fragment {
 						.setPositiveButton(android.R.string.ok, (d, i) -> {
 						})
 						.create();
+
 					dialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_background);
 					dialog.show();
+
 					binding.settingsPhonePositioningSwitch.setChecked(false);
 				} else if (b) {
 					SharedPreferencesUtil.setBoolean(SharedPreferencesUtil.KEYS.USE_GPS, true);
@@ -87,13 +88,10 @@ public class SettingsFragment extends Fragment {
 					SharedPreferencesUtil.setBoolean(SharedPreferencesUtil.KEYS.USE_GPS, false);
 					setLocationSetting();
 				}
-
 			}
 		});
 
 		setLocationSetting();
-
-
 	}
 
 	private void setLocationSetting() {

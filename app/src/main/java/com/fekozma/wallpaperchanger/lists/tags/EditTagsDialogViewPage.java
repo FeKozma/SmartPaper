@@ -13,8 +13,8 @@ import com.fekozma.wallpaperchanger.database.StaticValues;
 import com.google.android.flexbox.*;
 
 public class EditTagsDialogViewPage extends Fragment {
-	private StaticValues values;
-	private DBImage[] image;
+	private final StaticValues values;
+	private final DBImage[] image;
 
 	public EditTagsDialogViewPage(StaticValues values, DBImage[] image) {
 		super(R.layout.edit_tags_dialog_list);
@@ -38,8 +38,6 @@ public class EditTagsDialogViewPage extends Fragment {
 
 		// Set up RecyclerView
 		recyclerView.setLayoutManager(layoutManager);
-
-
 		recyclerView.setAdapter(new EditTagsListAdapter(values, image));
 	}
 }

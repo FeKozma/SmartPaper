@@ -15,13 +15,14 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 public class WallpaperUtil {
-	private static final String TAG = "WallpaperUtil";
+	private static final String TAG = "WallpaperUtil"; // TODO: Remove?
 
 	public static void setWallpaperFromFile2(File jpgFile) {
 		if (jpgFile == null || !jpgFile.exists()) {
-			DBLog.db.addLog(DBLog.LEVELS.ERROR, "Error setting wallpaper: file does not exist. " + ((jpgFile == null) ? "null": jpgFile.getName()));
+			DBLog.db.addLog(DBLog.LEVELS.ERROR, "Error setting wallpaper: File does not exist: " + ((jpgFile == null) ? "null": jpgFile.getName()));
 			return;
 		}
+
 		WallpaperManager wallpaperManager = WallpaperManager.getInstance(ContextUtil.getContext());
 		FileInputStream fis = null;
 
@@ -42,6 +43,7 @@ public class WallpaperUtil {
 			} else {
 				wallpaperManager.setBitmap(bitmap);
 			}
+
 			DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Updated wallpaper; " + jpgFile.getName());
 
 		} catch (IOException e) {

@@ -30,7 +30,7 @@ public class LogListAdapter extends RecyclerView.Adapter<LogItemHolder> {
 
 	@Override
 	public void onBindViewHolder(@NonNull LogItemHolder holder, int position) {
-		holder.setMessag(logs.get(holder.getBindingAdapterPosition()).message);
+		holder.setMessage(logs.get(holder.getBindingAdapterPosition()).message);
 		holder.setDate(logs.get(holder.getBindingAdapterPosition()).date);
 		holder.setLevel(logs.get(holder.getBindingAdapterPosition()).level);
 	}
