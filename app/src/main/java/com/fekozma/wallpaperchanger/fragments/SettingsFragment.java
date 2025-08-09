@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.CompoundButton;
 
 import androidx.annotation.NonNull;
@@ -64,6 +65,60 @@ public class SettingsFragment extends Fragment {
 			}
 		});
 
+		setWeatherSettings();
+		setLocationSettings();
+
+
+	}
+
+	private void setLocationSettings() {
+		setLocationRadius();
+
+		binding.settingsLocationRadius.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+				String selection = getResources().getStringArray(R.array.dropdown_radius_items)[i];
+				selection = selection.substring(0, selection.indexOf(" "));
+				DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Changed radius to '" + selection + "'");
+				SharedPreferencesUtil.setInt(SharedPreferencesUtil.KEYS.LOCATION_RADIUS, Integer.valueOf(selection));
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> adapterView) {
+				SharedPreferencesUtil.setInt(SharedPreferencesUtil.KEYS.LOCATION_RADIUS, 5);
+			}
+		});
+	}
+
+	private void setLocationRadius() {
+		int radius = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.LOCATION_RADIUS);
+		int pos;
+		switch (radius) {
+			case 5:
+				pos = 0;
+				break;
+			case 10:
+				pos = 1;
+				break;
+			case 20:
+				pos = 2;
+				break;
+			case 50:
+				pos = 3;
+				break;
+			case 100:
+				pos = 4;
+				break;
+			default:
+				pos = 0;
+		}
+
+		binding.settingsLocationRadius.setSelection(pos);
+
+	}
+
+	private void setWeatherSettings() {
 		// Weather
 		boolean useGPS = SharedPreferencesUtil.getBoolean(SharedPreferencesUtil.KEYS.USE_GPS);
 		boolean isPermitted = ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
@@ -95,8 +150,6 @@ public class SettingsFragment extends Fragment {
 		});
 
 		setLocationSetting();
-
-
 	}
 
 	private void setLocationSetting() {
@@ -105,34 +158,7 @@ public class SettingsFragment extends Fragment {
 
 		if (lat != null && lon != null) {
 
-			GeoPoint geoPoint = new GeoPoint(Double.parseDouble(lat), Double.parseDouble(lon));
-			Geocoder geocoder = new Geocoder(ContextUtil.getContext(), Locale.getDefault());
-
-			Executors.newSingleThreadExecutor().execute(() -> {
-				geocoder.getFromLocation(
-					geoPoint.getLatitude(),
-					geoPoint.getLongitude(),
-					1,
-					addresses -> {
-						if (!addresses.isEmpty()) {
-							Address address = addresses.get(0);
-
-							String city = address.getLocality(); // Main city/town
-							if (city == null) {
-								city = address.getSubAdminArea(); // County or district, often used when no city
-							}
-
-							String addressText = (city == null ? "" : city + ", ") + address.getAdminArea();
-
-							setMapButton(addressText);
-							getAdressFromAPI(geoPoint.getLatitude(), geoPoint.getLongitude());
-						}
-					}
-				);
-				});
-
-
-
+			LocationUtil.getLocationName(Double.parseDouble(lat), Double.parseDouble(lon), this::setMapButton);
 
 		}
 	}
@@ -149,33 +175,6 @@ public class SettingsFragment extends Fragment {
 						LocationUtil.showMapDialog(getContext(), () -> {setLocationSetting();});
 					}
 				});
-			});
-		}
-	}
-
-	private void getAdressFromAPI(double lat, double lon) {
-		if (NetworkUtil.isInternetAvailable(getContext())) {
-			NominatimService adress = HttpClient.getAdressApi();
-
-			adress.reverseGeocode(lat, lon, "json", 1).enqueue(new Callback<NominatimService.NominatimResponse>() {
-				@Override
-				public void onResponse(Call<NominatimService.NominatimResponse> call, Response<NominatimService.NominatimResponse> response) {
-					if (response.isSuccessful() && response.body() != null) {
-						NominatimService.NominatimResponse res = response.body();
-						String city = res.getCityName();
-						String county = res.getCountyName();
-						String addressText = (city == null ? "" : city + ", ") + county;
-						setMapButton(addressText);
-						DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Retrieved adress from api");
-					} else {
-						DBLog.db.addLog(DBLog.LEVELS.ERROR, "Could not retriev adress from api; " + response.code());
-					}
-				}
-
-				@Override
-				public void onFailure(Call<NominatimService.NominatimResponse> call, Throwable throwable) {
-					DBLog.db.addLog(DBLog.LEVELS.ERROR, "Could not retriev adress from api; " + throwable.getMessage(), throwable);
-				}
 			});
 		}
 	}

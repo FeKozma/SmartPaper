@@ -30,19 +30,37 @@ public interface NominatimService {
 			@SerializedName("village")
 			public String village;
 
+			@SerializedName("municipality")
+			public String municipality;
+
 			@SerializedName("county")
 			public String county;
+
+			@SerializedName("state")
+			public String state;
 		}
 
-		public String getCityName() {
+		public String getPrimaryPlaceName() {
 			if (address.city != null) return address.city;
 			if (address.town != null) return address.town;
 			if (address.village != null) return address.village;
+			if (address.municipality != null) return address.municipality;
 			return null;
 		}
 
-		public String getCountyName() {
-			return address.county;
+		public String getRegionName() {
+			if (address.county != null) return address.county;
+			if (address.state != null) return address.state;
+			return null;
+		}
+
+		public String getGeneralLocation() {
+			String primary = getPrimaryPlaceName();
+			String region = getRegionName();
+			if (primary != null && region != null) {
+				return primary + ", " + region;
+			}
+			return primary != null ? primary : region;
 		}
 	}
 }

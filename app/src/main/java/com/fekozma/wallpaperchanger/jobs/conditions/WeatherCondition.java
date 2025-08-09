@@ -34,31 +34,36 @@ public class WeatherCondition extends ConditionalImages{
 			DBLog.db.addLog(DBLog.LEVELS.DEBUG, "getting weather");
 			Call<WeatherApi.Response> call = weatherApi.getWeather(location.getLatitude(), location.getLongitude(), apiKey, "metric");
 
-			call.enqueue(new Callback<WeatherApi.Response>() {
-				@Override
-				public void onResponse(Call<WeatherApi.Response> call, Response<WeatherApi.Response> response) {
-					if (response.isSuccessful() && response.body() != null) {
-						WeatherApi.Response data = response.body();
+			if (!apiKey.isEmpty()) {
+				DBLog.db.addLog(DBLog.LEVELS.DEBUG, "GET weather: " + call.request().url().toString().replace(apiKey, "<api_key>"));
+				call.enqueue(new Callback<WeatherApi.Response>() {
+					@Override
+					public void onResponse(Call<WeatherApi.Response> call, Response<WeatherApi.Response> response) {
+						if (response.isSuccessful() && response.body() != null) {
+							WeatherApi.Response data = response.body();
 
-						String currentCondition = StaticTags.getWeather(data.weather.get(0).id).getName();
-						DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Weather retrieved; " + data.weather.get(0).description);
+							String currentCondition = StaticTags.getWeather(data.weather.get(0).id).getName();
+							DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Weather retrieved; " + data.weather.get(0).description);
 
-						onImagesLoaded.onImagesLoaded(getWeatherImages(images, currentCondition));
+							onImagesLoaded.onImagesLoaded(getWeatherImages(images, currentCondition));
 
-					} else {
-						DBLog.db.addLog(DBLog.LEVELS.ERROR, "Weather failed " + response.message());
-						SharedPreferencesUtil.setString(SharedPreferencesUtil.KEYS.WEATHER_CATEGORY, null);
+						} else {
+							DBLog.db.addLog(DBLog.LEVELS.ERROR, "Weather failed " + response.message());
+							SharedPreferencesUtil.setString(SharedPreferencesUtil.KEYS.WEATHER_CATEGORY, null);
+							onImagesLoaded.onImagesLoaded(getWeatherImages(images, null));
+						}
+					}
+
+					@Override
+					public void onFailure(Call<WeatherApi.Response> call, Throwable t) {
+						DBLog.db.addLog(DBLog.LEVELS.ERROR, "Weather failed " + t.getMessage(), t);
 						onImagesLoaded.onImagesLoaded(getWeatherImages(images, null));
 					}
-				}
-
-				@Override
-				public void onFailure(Call<WeatherApi.Response> call, Throwable t) {
-					DBLog.db.addLog(DBLog.LEVELS.ERROR, "Weather failed " + t.getMessage(), t);
-					onImagesLoaded.onImagesLoaded(getWeatherImages(images, null));
-				}
-			});
-
+				});
+			} else {
+				DBLog.db.addLog(DBLog.LEVELS.WARNING, "GET weather: Missing api key");
+				onImagesLoaded.onImagesLoaded(images);
+			}
 
 		});
 	}
