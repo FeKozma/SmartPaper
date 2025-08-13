@@ -209,10 +209,10 @@ public class ImageListFragment extends Fragment {
 								(name) -> {
 									adapter.notifyItemAdded(DBImage.db.setImage(name, null));
 									setHelpText();
-
 								},
 								() -> error.set(true));
 						}
+
 						if (!error.get()) {
 							Snackbar.make(binding.getRoot(), count + " images added.", Snackbar.LENGTH_LONG).show();
 						}
@@ -223,7 +223,6 @@ public class ImageListFragment extends Fragment {
 							Snackbar.make(binding.getRoot(), "1 image added.", Snackbar.LENGTH_LONG).show();
 							setHelpText();
 						});
-
 					}
 				}
 			});
@@ -233,6 +232,7 @@ public class ImageListFragment extends Fragment {
 			intent.setType("image/*");
 			intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
 			imagePickerLauncher.launch(Intent.createChooser(intent, "Select Picture"));
+
 			if (SharedPreferencesUtil.getString(SharedPreferencesUtil.KEYS.LOCATION_LAT) == null) {
 				DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Searching for an initial location");
 				LocationUtil.getCurrentLocation((loc) -> {});

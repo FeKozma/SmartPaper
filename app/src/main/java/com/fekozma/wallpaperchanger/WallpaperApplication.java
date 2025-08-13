@@ -23,14 +23,15 @@ public class WallpaperApplication extends Application {
 	private static final String TAG = "WallpaperApplication";
 	public static final String wallpaperWorker = "random_background_worker2";
 
-
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		CaocConfig.Builder.create().errorActivity(CustomErrorActivity.class).apply();
-
 		ContextUtil.setContext(this.getApplicationContext());
+
+		// TODO: Handle errors here (or in DBManager)...
 		new DBManager();
+
 		DBLog.db.addLog(DBLog.LEVELS.DEBUG, "---- Application started ----");
 		new MainActivity();
 
@@ -48,9 +49,7 @@ public class WallpaperApplication extends Application {
 			new PeriodicWorkRequest.Builder(CleanLogsJob.class, 10, TimeUnit.HOURS)
 				.setConstraints(new Constraints.Builder()
 					.setRequiresDeviceIdle(false)
-					.build()).build());
-
-
-
+					.build())
+				.build());
 	}
 }

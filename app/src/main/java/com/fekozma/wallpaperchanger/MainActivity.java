@@ -53,10 +53,10 @@ import org.osmdroid.views.overlay.Marker;
 
 public class MainActivity extends AppCompatActivity {
 
-	private AppBarConfiguration appBarConfiguration;
-	private MainActivityBinding binding;
 	private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
 	private static final int REQUEST_BACKGROUND_LOCATION = 1002;
+	private AppBarConfiguration appBarConfiguration;
+	private MainActivityBinding binding;
 	private ActivityResultLauncher<Intent> importZipLauncher;
 
 	@Override

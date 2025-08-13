@@ -63,7 +63,6 @@ public class DBLog extends DBManager {
 
 	public List<DBLog> getLogs() {
 		synchronized (DBManager.DATABASE_NAME) {
-
 			Cursor cursor = getReadableDatabase().query(TABLES.LOGS.name, TABLES.LOGS.getColumns(), null, null, null, null, COL_DATE + " DESC");
 			return getLogs(cursor);
 		}

@@ -25,7 +25,7 @@ public class DBImage extends DBManager implements Parcelable {
 
 	protected DBImage() {}
 
-	private DBImage(String image, String[] tags) {
+	protected DBImage(String image, String[] tags) {
 		this.image = image;
 		this.tags = tags;
 	}

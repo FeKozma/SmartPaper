@@ -113,11 +113,9 @@ public class ZipUtil {
 		fileOrDirectory.delete();
 	}
 
-	// Export
-
+	// Export wallpapers and convert to zip file.
 	public static void exportAppDataAndShare(Activity activity) {
 		String exportName = activity.getString(R.string.app_name) + "_export";
-
 
 		showLoading(activity);
 		Executors.newSingleThreadExecutor().execute(() -> {
@@ -151,8 +149,6 @@ public class ZipUtil {
 			dialog.dismiss();
 
 		});
-
-
 	}
 
 	private static File prepareSanitizedDatabase(Context context) throws IOException {
@@ -172,7 +168,7 @@ public class ZipUtil {
 		// Open the temp copy for modification
 		SQLiteDatabase db = SQLiteDatabase.openDatabase(tempDb.getAbsolutePath(), null, SQLiteDatabase.OPEN_READWRITE);
 
-		// Run your cleanup queries
+		// Run cleanup queries.
 		db.execSQL("DELETE FROM " + DBManager.TABLES.LOGS.name());
 		db.close();
 
