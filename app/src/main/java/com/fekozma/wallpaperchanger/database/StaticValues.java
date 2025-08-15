@@ -85,4 +85,8 @@ public enum StaticValues {
 	public ConditionalImages getCondition() {
 		return (condition == null) ? conditionWTag : condition;
 	}
+
+	public List<String> getTags() {
+		return tags.stream().map(StaticTags::getName).collect(Collectors.toList());
+	}
 }
