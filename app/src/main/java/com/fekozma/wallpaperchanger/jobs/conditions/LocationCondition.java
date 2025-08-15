@@ -1,6 +1,7 @@
 package com.fekozma.wallpaperchanger.jobs.conditions;
 
 import android.content.Context;
+import android.util.ArraySet;
 
 import com.fekozma.wallpaperchanger.R;
 import com.fekozma.wallpaperchanger.database.DBImage;
@@ -10,9 +11,7 @@ import com.fekozma.wallpaperchanger.lists.tags.TagsListHolder;
 import com.fekozma.wallpaperchanger.util.LocationUtil;
 import com.fekozma.wallpaperchanger.util.SharedPreferencesUtil;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -40,12 +39,19 @@ public class LocationCondition extends ConditionalImagesAndTags {
 	@Override
 	public List<String> getTags(List<DBImage> images) {
 
-		return new ArrayList<>(Arrays.stream(
-				DBLocations.db.getLocations(
-					images.stream().map(i -> i.image).collect(Collectors.toList())
-				)
-			)
-			.map(loc -> loc.address).collect(Collectors.toSet()));
+		List<List<DBLocations>> locations = images.stream().map(image -> {
+			return DBLocations.db.getLocationByImageName(image.image);
+		}).collect(Collectors.toList());
+
+		return new ArrayList<>(locations.stream()
+			.map(inner -> inner.stream()
+				.map(loc -> loc.address)
+				.collect(Collectors.toSet()))
+			.reduce((set1, set2) -> {
+				set1.retainAll(set2);
+				return set1;
+			})
+			.orElse(new HashSet<>()));
 	}
 
 	@Override
