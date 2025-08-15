@@ -151,15 +151,17 @@ public class SettingsFragment extends Fragment {
 	private void setMapButton(String location) {
 		Activity activity = getActivity();
 		if (activity != null && !activity.isFinishing()) {
+			if (location.endsWith(" län")) {
+				location = location.substring(0, location.length()-4);
+			}
+			if (location.length() > 20 && location.contains(",")) {
+				location = location.substring(0, location.indexOf(","));
+			}
+			String finalLocation = location;
 			binding.getRoot().post(() -> {
-				binding.settingsPhonePositioningMapLocation.setText(location);
+				binding.settingsPhonePositioningMapLocation.setText(finalLocation);
 
-				binding.settingsPhonePositioningMapLocation.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View view) {
-						LocationUtil.showMapDialog(getContext(), () -> {setLocationSetting();});
-					}
-				});
+				binding.settingsPhonePositioningMapLocation.setOnClickListener(view -> LocationUtil.showMapDialog(getContext(), () -> {setLocationSetting();}));
 			});
 		}
 	}

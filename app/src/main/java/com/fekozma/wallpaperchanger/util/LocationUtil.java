@@ -218,6 +218,9 @@ public class LocationUtil {
 						callback.accept(addressText);
 						getAddressFromAPI(geoPoint.getLatitude(), geoPoint.getLongitude(), callback);
 					}
+					else {
+						callback.accept("Unknown");
+					}
 				}
 			);
 		});
