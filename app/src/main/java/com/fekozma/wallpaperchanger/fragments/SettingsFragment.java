@@ -7,30 +7,34 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.CompoundButton;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
-import com.fekozma.wallpaperchanger.MainActivity;
 import com.fekozma.wallpaperchanger.R;
+import com.fekozma.wallpaperchanger.api.HttpClient;
+import com.fekozma.wallpaperchanger.api.NominatimService;
 import com.fekozma.wallpaperchanger.database.DBLog;
 import com.fekozma.wallpaperchanger.databinding.SettingsBinding;
 import com.fekozma.wallpaperchanger.util.ContextUtil;
 import com.fekozma.wallpaperchanger.util.LocationUtil;
+import com.fekozma.wallpaperchanger.util.NetworkUtil;
 import com.fekozma.wallpaperchanger.util.SharedPreferencesUtil;
 
 import org.osmdroid.util.GeoPoint;
 
-import java.io.IOException;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Executors;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class SettingsFragment extends Fragment {
 
@@ -61,6 +65,60 @@ public class SettingsFragment extends Fragment {
 			}
 		});
 
+		setWeatherSettings();
+		setLocationSettings();
+
+
+	}
+
+	private void setLocationSettings() {
+		setLocationRadius();
+
+		binding.settingsLocationRadius.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+				String selection = getResources().getStringArray(R.array.dropdown_radius_items)[i];
+				selection = selection.substring(0, selection.indexOf(" "));
+				DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Changed radius to '" + selection + "'");
+				SharedPreferencesUtil.setInt(SharedPreferencesUtil.KEYS.LOCATION_RADIUS, Integer.valueOf(selection));
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> adapterView) {
+				SharedPreferencesUtil.setInt(SharedPreferencesUtil.KEYS.LOCATION_RADIUS, 5);
+			}
+		});
+	}
+
+	private void setLocationRadius() {
+		int radius = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.LOCATION_RADIUS);
+		int pos;
+		switch (radius) {
+			case 5:
+				pos = 0;
+				break;
+			case 10:
+				pos = 1;
+				break;
+			case 20:
+				pos = 2;
+				break;
+			case 50:
+				pos = 3;
+				break;
+			case 100:
+				pos = 4;
+				break;
+			default:
+				pos = 0;
+		}
+
+		binding.settingsLocationRadius.setSelection(pos);
+
+	}
+
+	private void setWeatherSettings() {
 		// Weather
 		boolean useGPS = SharedPreferencesUtil.getBoolean(SharedPreferencesUtil.KEYS.USE_GPS);
 		boolean isPermitted = ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
@@ -92,8 +150,6 @@ public class SettingsFragment extends Fragment {
 		});
 
 		setLocationSetting();
-
-
 	}
 
 	private void setLocationSetting() {
@@ -102,41 +158,29 @@ public class SettingsFragment extends Fragment {
 
 		if (lat != null && lon != null) {
 
-			GeoPoint geoPoint = new GeoPoint(Double.parseDouble(lat), Double.parseDouble(lon));
-			Geocoder geocoder = new Geocoder(ContextUtil.getContext(), Locale.getDefault());
-
-			Executors.newSingleThreadExecutor().execute(() -> {
-				geocoder.getFromLocation(
-					geoPoint.getLatitude(),
-					geoPoint.getLongitude(),
-					1,
-					addresses -> {
-						if (!addresses.isEmpty()) {
-							Address address = addresses.get(0);
-							String addressText = (address.getLocality() == null ? "" : address.getLocality() + ", ") + address.getAdminArea();
-
-							Activity activity = getActivity();
-
-							if (activity != null && !activity.isFinishing()) {
-								binding.getRoot().post(() -> {
-									binding.settingsPhonePositioningMapLocation.setText(addressText);
-
-									binding.settingsPhonePositioningMapLocation.setOnClickListener(new View.OnClickListener() {
-										@Override
-										public void onClick(View view) {
-											LocationUtil.showMapDialog(getContext(), () -> {setLocationSetting();});
-										}
-									});
-								});
-							}
-						}
-					}
-				);
-				});
-
+			LocationUtil.getLocationName(Double.parseDouble(lat), Double.parseDouble(lon), this::setMapButton);
 
 		}
 	}
+
+	private void setMapButton(String location) {
+		Activity activity = getActivity();
+		if (activity != null && !activity.isFinishing()) {
+			if (location.endsWith(" län")) {
+				location = location.substring(0, location.length()-4);
+			}
+			if (location.length() > 20 && location.contains(",")) {
+				location = location.substring(0, location.indexOf(","));
+			}
+			String finalLocation = location;
+			binding.getRoot().post(() -> {
+				binding.settingsPhonePositioningMapLocation.setText(finalLocation);
+
+				binding.settingsPhonePositioningMapLocation.setOnClickListener(view -> LocationUtil.showMapDialog(getContext(), () -> {setLocationSetting();}));
+			});
+		}
+	}
+
 
 	@Override
 	public void onDestroyView() {

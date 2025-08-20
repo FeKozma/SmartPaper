@@ -1,7 +1,6 @@
 package com.fekozma.wallpaperchanger.util;
 
 import android.net.Uri;
-import android.util.Log;
 
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 

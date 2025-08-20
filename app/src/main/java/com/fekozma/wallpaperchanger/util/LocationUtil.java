@@ -3,6 +3,8 @@ package com.fekozma.wallpaperchanger.util;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -15,6 +17,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 
 import com.fekozma.wallpaperchanger.R;
+import com.fekozma.wallpaperchanger.api.HttpClient;
+import com.fekozma.wallpaperchanger.api.NominatimService;
 import com.fekozma.wallpaperchanger.database.DBLog;
 import com.google.android.gms.location.*;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -28,6 +32,13 @@ import org.osmdroid.views.Projection;
 import org.osmdroid.views.overlay.Marker;
 
 import java.util.Locale;
+import java.util.concurrent.Executors;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class LocationUtil {
@@ -35,6 +46,14 @@ public class LocationUtil {
 	static String TAG = LocationUtil.class.getSimpleName();
 
 	public static void showMapDialog(Context context, Runnable onDismiss) {
+		showMapDialog(false, context, onDismiss, (lat, lon) -> {
+			SharedPreferencesUtil.setString(SharedPreferencesUtil.KEYS.LOCATION_LAT, lat + "");
+			SharedPreferencesUtil.setString(SharedPreferencesUtil.KEYS.LOCATION_LONG, lon + "");
+		});
+	}
+
+
+	public static void showMapDialog(boolean showContinue, Context context, Runnable onDismiss, BiConsumer<Double, Double> onResult) {
 		// Load OSMDroid config
 
 		Configuration.getInstance().setUserAgentValue(ContextUtil.getContext().getPackageName());
@@ -76,6 +95,7 @@ public class LocationUtil {
 			return false;
 		});
 
+
 		AlertDialog dialog = new AlertDialog.Builder(context)
 			.setView(mapViewLayout)
 			.setOnDismissListener(dialogInterface -> onDismiss.run())
@@ -95,8 +115,7 @@ public class LocationUtil {
 
 				DBLog.db.addLog(DBLog.LEVELS.DEBUG, "user commited: Lat: " + lat + ", Lon: " + lon);
 
-				SharedPreferencesUtil.setString(SharedPreferencesUtil.KEYS.LOCATION_LAT, lat + "");
-				SharedPreferencesUtil.setString(SharedPreferencesUtil.KEYS.LOCATION_LONG, lon + "");
+				onResult.accept(lat, lon);
 				dialog.dismiss();
 			} else {
 				Toast.makeText(v.getContext(), "Please select a location", Toast.LENGTH_SHORT).show();
@@ -173,6 +192,64 @@ public class LocationUtil {
 				DBLog.db.addLog(DBLog.LEVELS.ERROR, "Error getting location: " + e.getMessage());
 			});
 	}
+
+
+	public static void getLocationName(double lat, double lon, Consumer<String> callback) {
+
+			GeoPoint geoPoint = new GeoPoint(lat, lon);
+			Geocoder geocoder = new Geocoder(ContextUtil.getContext(), Locale.getDefault());
+		Executors.newSingleThreadExecutor().execute(() -> {
+
+			geocoder.getFromLocation(
+				geoPoint.getLatitude(),
+				geoPoint.getLongitude(),
+				1,
+				addresses -> {
+					if (!addresses.isEmpty()) {
+						Address address = addresses.get(0);
+
+						String city = address.getLocality(); // Main city/town
+						if (city == null) {
+							city = address.getSubAdminArea(); // County or district, often used when no city
+						}
+
+						String addressText = (city == null ? "" : city + ", ") + address.getAdminArea();
+
+						callback.accept(addressText);
+						getAddressFromAPI(geoPoint.getLatitude(), geoPoint.getLongitude(), callback);
+					}
+					else {
+						callback.accept("Unknown");
+					}
+				}
+			);
+		});
+	}
+
+	private static void getAddressFromAPI(double lat, double lon, Consumer<String> callback) {
+		if (NetworkUtil.isInternetAvailable(ContextUtil.getContext())) {
+			NominatimService adress = HttpClient.getAdressApi();
+
+			adress.reverseGeocode(lat, lon, "json", 1).enqueue(new Callback<NominatimService.NominatimResponse>() {
+				@Override
+				public void onResponse(Call<NominatimService.NominatimResponse> call, Response<NominatimService.NominatimResponse> response) {
+					if (response.isSuccessful() && response.body() != null) {
+						NominatimService.NominatimResponse res = response.body();
+						callback.accept(res.getGeneralLocation());
+						DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Retrieved adress from api; " + res.getGeneralLocation());
+					} else {
+						DBLog.db.addLog(DBLog.LEVELS.ERROR, "Could not retriev adress from api; " + response.code());
+					}
+				}
+
+				@Override
+				public void onFailure(Call<NominatimService.NominatimResponse> call, Throwable throwable) {
+					DBLog.db.addLog(DBLog.LEVELS.ERROR, "Could not retriev adress from api; " + throwable.getMessage(), throwable);
+				}
+			});
+		}
+	}
+
 
 	public static GeoPoint getDefaultCountryGeoPoint() {
 		return getDefaultLocationForCountry(Locale.getDefault().getCountry().toUpperCase());
