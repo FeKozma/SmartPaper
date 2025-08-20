@@ -14,5 +14,5 @@ public abstract class ConditionalImagesAndTags extends ConditionalImages {
 
 	public abstract void edit(Context context, DBImage[] images, Consumer<List<String>> onTagsChanged);
 
-	public abstract void setHolder(DBImage[] images, String adress, TagsListHolder holder, Runnable onRemove);
+	public abstract void setHolder(DBImage[] images, String address, TagsListHolder holder, Runnable onRemove);
 }

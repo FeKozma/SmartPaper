@@ -151,7 +151,8 @@ public class LocationUtil {
 				Location location = new Location("");
 				location.setLatitude(Double.parseDouble(lat));
 				location.setLongitude(Double.parseDouble(lon));
-				DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Using cashed location; " + lat + ", " + lon);
+
+				DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Using cashed locations (lat, lon): " + lat + ", " + lon);
 				onSuccessListener.onSuccess(location);
 			} else  {
 				DBLog.db.addLog(DBLog.LEVELS.WARNING, "Location not found");
@@ -159,6 +160,7 @@ public class LocationUtil {
 
 			return;
 		}
+
 		DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Searching for GPS position");
 
 		fusedLocationClient.getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, null)
@@ -228,23 +230,23 @@ public class LocationUtil {
 
 	private static void getAddressFromAPI(double lat, double lon, Consumer<String> callback) {
 		if (NetworkUtil.isInternetAvailable(ContextUtil.getContext())) {
-			NominatimService adress = HttpClient.getAdressApi();
+			NominatimService address = HttpClient.getAddressApi();
 
-			adress.reverseGeocode(lat, lon, "json", 1).enqueue(new Callback<NominatimService.NominatimResponse>() {
+			address.reverseGeocode(lat, lon, "json", 1).enqueue(new Callback<NominatimService.NominatimResponse>() {
 				@Override
 				public void onResponse(Call<NominatimService.NominatimResponse> call, Response<NominatimService.NominatimResponse> response) {
 					if (response.isSuccessful() && response.body() != null) {
 						NominatimService.NominatimResponse res = response.body();
 						callback.accept(res.getGeneralLocation());
-						DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Retrieved adress from api; " + res.getGeneralLocation());
+						DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Retrieved address from api: " + res.getGeneralLocation());
 					} else {
-						DBLog.db.addLog(DBLog.LEVELS.ERROR, "Could not retriev adress from api; " + response.code());
+						DBLog.db.addLog(DBLog.LEVELS.ERROR, "Could not retrieve address from api: " + response.code());
 					}
 				}
 
 				@Override
 				public void onFailure(Call<NominatimService.NominatimResponse> call, Throwable throwable) {
-					DBLog.db.addLog(DBLog.LEVELS.ERROR, "Could not retriev adress from api; " + throwable.getMessage(), throwable);
+					DBLog.db.addLog(DBLog.LEVELS.ERROR, "Could not retrieve address from api: " + throwable.getMessage(), throwable);
 				}
 			});
 		}
