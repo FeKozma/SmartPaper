@@ -84,6 +84,7 @@ public class DBLocations extends DBManager {
 					insertValues.put(COL_LAT, latStr.substring(0, 12));
 					insertValues.put(COL_LON, lonStr.substring(0, 12));
 					insertValues.put(COL_ADDRESS, address);
+
 					db.insert(TABLES.LOCATIONS.name, null, insertValues);
 					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Location inserted for image " + image);
 				} else {

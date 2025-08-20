@@ -17,22 +17,25 @@ public class ImageUtil {
 
 	public static Optional<String> saveImageToAppstorage(Uri sourceUri, CoordinatorLayout snackbar) {
 		File destinationDir = new File(ContextUtil.getContext().getFilesDir(), folder);
+
 		if (!destinationDir.exists()) {
 			destinationDir.mkdirs();
 		}
+
 		String newFileName =  "image_" + System.currentTimeMillis() + (int)(Math.random() * 10001) + ".jpg";
 		File destinationFile = new File(destinationDir, newFileName);
 
 		try (InputStream in = ContextUtil.getContext().getContentResolver().openInputStream(sourceUri);
-			 OutputStream out = new FileOutputStream(destinationFile)) {
+				OutputStream out = new FileOutputStream(destinationFile)) {
 			byte[] buf = new byte[1024];
 			int len;
 			while ((len = in.read(buf)) > 0) {
 				out.write(buf, 0, len);
 			}
-			DBLog.db.addLog(DBLog.LEVELS.DEBUG, "image saved to app storage: " + destinationFile.getName());
+
+			DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Image saved to app storage: " + destinationFile.getName());
 		} catch (IOException e) {
-			DBLog.db.addLog(DBLog.LEVELS.DEBUG, "image failed: " + e.getMessage(), e);
+			DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Image failed: " + e.getMessage(), e);
 			Snackbar.make(snackbar, "Error saving image: " + e.getMessage(), Snackbar.LENGTH_LONG).show();
 			return Optional.ofNullable((String)null);
 		}
