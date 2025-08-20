@@ -1,7 +1,6 @@
 package com.fekozma.wallpaperchanger.jobs.conditions;
 
 import android.content.Context;
-import android.util.ArraySet;
 
 import com.fekozma.wallpaperchanger.R;
 import com.fekozma.wallpaperchanger.database.DBImage;
@@ -33,7 +32,6 @@ public class LocationCondition extends ConditionalImagesAndTags {
 				onImagesLoaded.onImagesLoaded(images);
 			}
 		}
-
 	}
 
 	@Override
@@ -59,23 +57,21 @@ public class LocationCondition extends ConditionalImagesAndTags {
 		LocationUtil.showMapDialog(true, context, () -> {},
 			(lat, lon) -> {
 
-			LocationUtil.getLocationName(lat, lon, (adress) -> {
+			LocationUtil.getLocationName(lat, lon, (address) -> {
 				for (DBImage image : images) {
-					DBLocations.db.setLocation(image.image, lat, lon, adress);
+					DBLocations.db.setLocation(image.image, lat, lon, address);
 				}
 				onTagsChanged.accept(Arrays.stream(DBLocations.db.getLocations(List.of(images).stream().map(i -> i.image).collect(Collectors.toList()))).map(loc -> loc.address).collect(Collectors.toList()));
 			});
-
 		});
-
 	}
 
 	@Override
-	public void setHolder(DBImage[] images, String adress, TagsListHolder holder, Runnable onRemove) {
+	public void setHolder(DBImage[] images, String address, TagsListHolder holder, Runnable onRemove) {
 		holder.setIcon(R.drawable.remove_24dp);
 		holder.onClicklistener(view -> {
 			for (DBImage image : images) {
-				DBLocations.db.deleteLocation(image, adress);
+				DBLocations.db.deleteLocation(image, address);
 			}
 			onRemove.run();
 		});
@@ -104,7 +100,6 @@ public class LocationCondition extends ConditionalImagesAndTags {
 	}
 
 	private boolean hasNoRadius(DBImage image) {
-
 		return DBLocations.db.getLocationByImageName(image.image).isEmpty();
 	}
 }
