@@ -227,6 +227,7 @@ public class DBImage extends DBManager implements Parcelable {
 					DBLocations.db.deleteLocations(new String[]{dbImage.image});
 					tmpSuccess = ImageUtil.getImageFromAppstorage(dbImage).map((image) -> {
 						return image.delete();
+
 					}).orElse(true);
 					if (!tmpSuccess) {
 						success = false;

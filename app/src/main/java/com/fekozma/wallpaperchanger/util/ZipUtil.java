@@ -146,7 +146,7 @@ public class ZipUtil {
 				});
 
 			} catch (IOException e) {
-				DBLog.db.addLog(DBLog.LEVELS.ERROR, "Could not export dataset; " + e.getMessage(), e);
+				DBLog.db.addLog(DBLog.LEVELS.ERROR, "Could not export dataset: " + e.getMessage(), e);
 				Snackbar.make(activity.findViewById(android.R.id.content), "Export failed: " + e.getMessage(), Snackbar.LENGTH_LONG).show();
 			}
 			dialog.dismiss();
