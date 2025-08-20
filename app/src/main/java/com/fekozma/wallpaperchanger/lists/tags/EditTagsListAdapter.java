@@ -24,15 +24,15 @@ import java.util.stream.Collectors;
 public class EditTagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 
 	private List<String> tags;
-	private StaticValues val;
 	private DBImage[] images;
+	private StaticValues cit; // Conditional Image Tags.
 
 	private int selectedId;
 	private Context context;
 
-	public EditTagsListAdapter(StaticValues val, DBImage[] images) {
-		this.tags = val.getTags(images);
-		this.val = val;
+	public EditTagsListAdapter(StaticValues cit, DBImage[] images) {
+		this.tags = cit.getTags(images);
+		this.cit = cit;
 		this.images = images;
 	}
 
@@ -47,13 +47,13 @@ public class EditTagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 	public void onBindViewHolder(@NonNull TagsListHolder holder, int position) {
 		int i = holder.getBindingAdapterPosition();
 		if (i == tags.size()) {
-			holder.setTag("Add " + val.name().toLowerCase());
+			holder.setTag("Add " + cit.name().toLowerCase());
 			holder.setNumber();
-			holder.setBackground(val.getColor());
+			holder.setBackground(cit.getColor());
 			holder.setIcon(R.drawable.edit_24dp);
 
 			holder.onClicklistener(view ->
-				((ConditionalImagesAndTags)val.getCondition()).edit(context, images, (tags) -> {
+				((ConditionalImagesAndTags) cit.getCondition()).edit(context, images, (tags) -> {
 					EditTagsListAdapter.this.tags = tags;
 					holder.itemView.post(() -> {
 						notifyDataSetChanged();
@@ -71,10 +71,10 @@ public class EditTagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 		holder.setTag(tag);
 		holder.setIcon(R.drawable.add_circle_24dp);
 		holder.setNumber();
-		holder.setBackground(val.getColor());
+		holder.setBackground(cit.getColor());
 
-		if (val.getCondition() instanceof ConditionalImagesAndTags ) {
-			ConditionalImagesAndTags conditionalImagesAndTags = (ConditionalImagesAndTags) val.getCondition();
+		if (cit.getCondition() instanceof ConditionalImagesAndTags ) {
+			ConditionalImagesAndTags conditionalImagesAndTags = (ConditionalImagesAndTags) cit.getCondition();
 			conditionalImagesAndTags.setHolder(images, tags.get(i), holder, () -> {
 				int rmIndex = tags.indexOf(tag);
 				tags.remove(rmIndex);
@@ -116,6 +116,6 @@ public class EditTagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 	@Override
 	public int getItemCount() {
 		return
-			(val.getCondition() instanceof ConditionalImagesAndTags ? 1 : 0 ) + tags.size();
+			(cit.getCondition() instanceof ConditionalImagesAndTags ? 1 : 0 ) + tags.size();
 	}
 }
