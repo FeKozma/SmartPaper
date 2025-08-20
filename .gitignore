@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Ignoring deployment target selectors.
+/.idea/deploymentTargetSelector.xml
