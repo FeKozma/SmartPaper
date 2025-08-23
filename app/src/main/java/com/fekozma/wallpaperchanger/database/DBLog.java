@@ -18,7 +18,7 @@ public class DBLog extends DBManager {
 	public static final String COL_MESSAGE = "message";
 	public static final String COL_DATE = "date";
 	public static final String COL_LEVEL = "level";
-	private static final DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("MM-dd HH:mm:ss.SSS");
+	private static final DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
 
 
 	public String message;
