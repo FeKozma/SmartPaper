@@ -7,7 +7,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.fekozma.wallpaperchanger.database.DBImage;
-import com.fekozma.wallpaperchanger.database.StaticValues;
+import com.fekozma.wallpaperchanger.database.ImageCategories;
 
 public class EditTagsDialogViewPageAdapter extends FragmentStateAdapter {
 	private final DBImage[] images;
@@ -20,11 +20,11 @@ public class EditTagsDialogViewPageAdapter extends FragmentStateAdapter {
 	@NonNull
 	@Override
 	public Fragment createFragment(int position) {
-		return new EditTagsDialogViewPage(StaticValues.values()[position], images);
+		return new EditTagsDialogViewPage(ImageCategories.values()[position], images);
 	}
 
 	@Override
 	public int getItemCount() {
-		return StaticValues.values().length;
+		return ImageCategories.values().length;
 	}
 }

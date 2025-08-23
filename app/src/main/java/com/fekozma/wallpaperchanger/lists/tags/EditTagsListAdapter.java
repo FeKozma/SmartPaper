@@ -1,8 +1,6 @@
 package com.fekozma.wallpaperchanger.lists.tags;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,11 +8,11 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fekozma.wallpaperchanger.MainActivity;
 import com.fekozma.wallpaperchanger.R;
 import com.fekozma.wallpaperchanger.database.DBImage;
 import com.fekozma.wallpaperchanger.database.DBLog;
-import com.fekozma.wallpaperchanger.database.StaticValues;
+import com.fekozma.wallpaperchanger.database.ImageCategories;
+import com.fekozma.wallpaperchanger.database.ImageStaticTags;
 import com.fekozma.wallpaperchanger.jobs.conditions.ConditionalImagesAndTags;
 
 import java.util.Arrays;
@@ -25,14 +23,14 @@ public class EditTagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 
 	private List<String> tags;
 	private DBImage[] images;
-	private StaticValues cit; // Conditional Image Tags.
+	private ImageCategories category;
 
 	private int selectedId;
 	private Context context;
 
-	public EditTagsListAdapter(StaticValues cit, DBImage[] images) {
-		this.tags = cit.getTags(images);
-		this.cit = cit;
+	public EditTagsListAdapter(ImageCategories category, DBImage[] images) {
+		this.tags = category.getTags(images);
+		this.category = category;
 		this.images = images;
 	}
 
@@ -47,13 +45,13 @@ public class EditTagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 	public void onBindViewHolder(@NonNull TagsListHolder holder, int position) {
 		int i = holder.getBindingAdapterPosition();
 		if (i == tags.size()) {
-			holder.setTag("Add " + cit.name().toLowerCase());
+			holder.setTag("Add " + category.name().toLowerCase());
 			holder.setNumber();
-			holder.setBackground(cit.getColor());
+			holder.setBackground(category.getColor());
 			holder.setIcon(R.drawable.edit_24dp);
 
 			holder.onClicklistener(view ->
-				((ConditionalImagesAndTags) cit.getCondition()).edit(context, images, (tags) -> {
+				((ConditionalImagesAndTags) category.getCondition()).edit(context, images, (tags) -> {
 					EditTagsListAdapter.this.tags = tags;
 					holder.itemView.post(() -> {
 						notifyDataSetChanged();
@@ -62,21 +60,21 @@ public class EditTagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 
 			return;
 		}
-		String tag = tags.get(i);
+		ImageStaticTags tag = ImageStaticTags.valueOf(tags.get(i));
 
 		long selections = Arrays.stream(images)
-			.filter(image -> StaticValues.hasTag(tags.get(i), image))
+			.filter(image -> ImageCategories.hasTag(tags.get(i), image))
 			.count();
 
-		holder.setTag(tag);
+		holder.setTag(tag.getVissibleName());
 		holder.setIcon(R.drawable.add_circle_24dp);
 		holder.setNumber();
-		holder.setBackground(cit.getColor());
+		holder.setBackground(category.getColor());
 
-		if (cit.getCondition() instanceof ConditionalImagesAndTags ) {
-			ConditionalImagesAndTags conditionalImagesAndTags = (ConditionalImagesAndTags) cit.getCondition();
+		if (category.getCondition() instanceof ConditionalImagesAndTags ) {
+			ConditionalImagesAndTags conditionalImagesAndTags = (ConditionalImagesAndTags) category.getCondition();
 			conditionalImagesAndTags.setHolder(images, tags.get(i), holder, () -> {
-				int rmIndex = tags.indexOf(tag);
+				int rmIndex = tags.indexOf(tag.getInternalName());
 				tags.remove(rmIndex);
 				notifyItemRemoved(rmIndex);
 			});
@@ -116,6 +114,6 @@ public class EditTagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 	@Override
 	public int getItemCount() {
 		return
-			(cit.getCondition() instanceof ConditionalImagesAndTags ? 1 : 0 ) + tags.size();
+			(category.getCondition() instanceof ConditionalImagesAndTags ? 1 : 0 ) + tags.size();
 	}
 }

@@ -4,8 +4,8 @@ import com.fekozma.wallpaperchanger.api.HttpClient;
 import com.fekozma.wallpaperchanger.api.WeatherApi;
 import com.fekozma.wallpaperchanger.database.DBImage;
 import com.fekozma.wallpaperchanger.database.DBLog;
-import com.fekozma.wallpaperchanger.database.StaticTags;
-import com.fekozma.wallpaperchanger.database.StaticValues;
+import com.fekozma.wallpaperchanger.database.ImageStaticTags;
+import com.fekozma.wallpaperchanger.database.ImageCategories;
 import com.fekozma.wallpaperchanger.util.LocationUtil;
 import com.fekozma.wallpaperchanger.util.SharedPreferencesUtil;
 import com.fekozma.wallpaperchanger.BuildConfig;
@@ -43,7 +43,7 @@ public class WeatherCondition extends ConditionalImages{
 						if (response.isSuccessful() && response.body() != null) {
 							WeatherApi.Response data = response.body();
 
-							String currentCondition = StaticTags.getWeather(data.weather.get(0).id).getName();
+							String currentCondition = ImageStaticTags.getWeather(data.weather.get(0).id).getInternalName();
 							DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Weather retrieved; " + data.weather.get(0).description);
 
 							onImagesLoaded.onImagesLoaded(getWeatherImages(images, currentCondition));
@@ -84,7 +84,7 @@ public class WeatherCondition extends ConditionalImages{
 		String finalWeather = weather;
 		List<DBImage> filteredRes = images.stream().filter(image -> Arrays.stream(image.tags).toList().contains(finalWeather)).collect(Collectors.toList());
 		if (filteredRes.isEmpty()) {
-			List<DBImage> noWeatherTags = images.stream().filter(image -> noCommonElements(List.of(image.tags), StaticValues.WEATHER.getTags())).collect(Collectors.toList());
+			List<DBImage> noWeatherTags = images.stream().filter(image -> noCommonElements(List.of(image.tags), ImageCategories.WEATHER.getTags())).collect(Collectors.toList());
 			if (noWeatherTags.isEmpty()) {
 				return images;
 			}

@@ -15,7 +15,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.fekozma.wallpaperchanger.R;
 import com.fekozma.wallpaperchanger.database.DBImage;
-import com.fekozma.wallpaperchanger.database.StaticValues;
+import com.fekozma.wallpaperchanger.database.ImageCategories;
 import com.fekozma.wallpaperchanger.jobs.conditions.ConditionalImagesAndTags;
 import com.fekozma.wallpaperchanger.util.ContextUtil;
 import com.google.android.material.tabs.TabLayout;
@@ -70,7 +70,7 @@ public class TagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 						public void onTabUnselected(TabLayout.Tab tab) {
 							TextView tabTextView = (TextView) tab.view.getChildAt(1); // 0 = icon, 1 = text
 							if (tabTextView != null) {
-								tabTextView.setTextColor(ContextUtil.getContext().getColor(StaticValues.values()[tab.getPosition()].getColor())); // Your color here
+								tabTextView.setTextColor(ContextUtil.getContext().getColor(ImageCategories.values()[tab.getPosition()].getColor())); // Your color here
 							}
 						}
 
@@ -81,14 +81,14 @@ public class TagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 					});
 
 					new TabLayoutMediator(tablayout, viewpager, (tab, position) -> {
-						tab.setText(StaticValues.values()[position].getCategory());
+						tab.setText(ImageCategories.values()[position].getCategory());
 
 						TextView tabTextView = (TextView) tab.view.getChildAt(1); // 0 = icon, 1 = text
 						if (tabTextView != null) {
-							tabTextView.setTextColor(ContextUtil.getContext().getColor(StaticValues.values()[position].getColor())); // Your color here
+							tabTextView.setTextColor(ContextUtil.getContext().getColor(ImageCategories.values()[position].getColor())); // Your color here
 						}
 
-						//tab.view.setBackgroundColor(ContextUtil.getContext().getColor(StaticValues.values()[position].getColor()));
+						//tab.view.setBackgroundColor(ContextUtil.getContext().getColor(ImageCategories.values()[position].getColor()));
 					}).attach();
 
 					AlertDialog dialog = new AlertDialog.Builder(view.getContext())
@@ -124,15 +124,15 @@ public class TagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 
 	private void setTags() {
 		tags = new ArrayList<>();
-		for (StaticValues value : StaticValues.values()) {
-			if (value.getCondition() instanceof ConditionalImagesAndTags) {
-				ConditionalImagesAndTags conditionalImagesAndTags = (ConditionalImagesAndTags) value.getCondition();
+		for (ImageCategories category : ImageCategories.values()) {
+			if (category.getCondition() instanceof ConditionalImagesAndTags) {
+				ConditionalImagesAndTags conditionalImagesAndTags = (ConditionalImagesAndTags) category.getCondition();
 				conditionalImagesAndTags.getTags(Arrays.asList(images)).forEach(tag -> {
-					this.tags.add(new TagItem(tag, value.getColor()));
+					this.tags.add(new TagItem(tag, category.getColor()));
 				});
 			} else {
-				StaticValues.getCommonSelections(value, this.images).forEach(tag -> {
-					this.tags.add(new TagItem(tag.getName(), value.getColor()));
+				ImageCategories.getCommonSelections(category, this.images).forEach(tag -> {
+					this.tags.add(new TagItem(tag.getVissibleName(), category.getColor()));
 				});
 			}
 		}
