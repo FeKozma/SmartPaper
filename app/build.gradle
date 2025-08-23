@@ -2,7 +2,13 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
-def apiKey = project.hasProperty("OPENWEATHER_API_KEY") ? project.OPENWEATHER_API_KEY : ""
+def localProps = new Properties()
+def localPropsFile = rootProject.file("local.properties")
+if (localPropsFile.exists()) {
+    localProps.load(new FileInputStream(localPropsFile))
+}
+
+def apiKey = localProps.getProperty("OPENWEATHER_API_KEY", "")
 
 android {
     namespace 'com.fekozma.wallpaperchanger'

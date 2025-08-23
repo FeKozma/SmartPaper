@@ -220,9 +220,11 @@ public class DBImage extends DBManager implements Parcelable {
 			}
 
 			if (success) {
+
 				//delete images from storage
 				boolean tmpSuccess;
 				for (DBImage dbImage : selected) {
+					DBLocations.db.deleteLocations(new String[]{dbImage.image});
 					tmpSuccess = ImageUtil.getImageFromAppstorage(dbImage).map((image) -> {
 						return image.delete();
 					}).orElse(true);
@@ -251,6 +253,7 @@ public class DBImage extends DBManager implements Parcelable {
 	public void deleteTags(DBImage[] selected) {
 		for (DBImage dbImage : selected) {
 			upsertImage(dbImage.image, new String[0]);
+			DBLocations.db.deleteLocations(new String[]{dbImage.image});
 		}
 	}
 

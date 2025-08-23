@@ -25,7 +25,8 @@ public enum StaticTags {
 	WEEKDAY_THURSDAY("thursday"),
 	WEEKDAY_FRIDAY("friday"),
 	WEEKDAY_SATURDAY("saturday"),
-	WEEKDAY_SUNDAY("sunday");
+	WEEKDAY_SUNDAY("sunday"),
+	LOCATION("location");
 
 
 	String name;

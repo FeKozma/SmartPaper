@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.fekozma.wallpaperchanger.R;
 import com.fekozma.wallpaperchanger.database.DBImage;
+import com.fekozma.wallpaperchanger.database.DBLocations;
 import com.fekozma.wallpaperchanger.database.StaticValues;
 import com.fekozma.wallpaperchanger.databinding.ImageListDialogBinding;
 import com.fekozma.wallpaperchanger.lists.tags.TagsListAdapter;
@@ -61,8 +62,9 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListViewHolder> 
 			}
 		}
 
-		holder.setNumberTag(item.image.tags.length);
-		holder.setNumberCat((int)count);
+		int locations = DBLocations.db.getLocationByImageName(item.image.image).size();
+		holder.setNumberTag(item.image.tags.length + locations);
+		holder.setNumberCat((int)count + (locations > 0 ? 1 : 0));
 		holder.itemView.setOnClickListener(v -> {
 			if (getSelected().length == 0) {
 				viewImage(v, holder.getBindingAdapterPosition());
