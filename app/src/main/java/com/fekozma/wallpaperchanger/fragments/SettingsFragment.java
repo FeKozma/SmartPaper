@@ -4,8 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,23 +16,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import com.fekozma.wallpaperchanger.R;
-import com.fekozma.wallpaperchanger.api.HttpClient;
-import com.fekozma.wallpaperchanger.api.NominatimService;
 import com.fekozma.wallpaperchanger.database.DBLog;
 import com.fekozma.wallpaperchanger.databinding.SettingsBinding;
-import com.fekozma.wallpaperchanger.util.ContextUtil;
 import com.fekozma.wallpaperchanger.util.LocationUtil;
-import com.fekozma.wallpaperchanger.util.NetworkUtil;
 import com.fekozma.wallpaperchanger.util.SharedPreferencesUtil;
-
-import org.osmdroid.util.GeoPoint;
-
-import java.util.Locale;
-import java.util.concurrent.Executors;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class SettingsFragment extends Fragment {
 
@@ -166,15 +151,17 @@ public class SettingsFragment extends Fragment {
 	private void setMapButton(String location) {
 		Activity activity = getActivity();
 		if (activity != null && !activity.isFinishing()) {
+			if (location.endsWith(" län")) {
+				location = location.substring(0, location.length()-4);
+			}
+			if (location.length() > 20 && location.contains(",")) {
+				location = location.substring(0, location.indexOf(","));
+			}
+			String finalLocation = location;
 			binding.getRoot().post(() -> {
-				binding.settingsPhonePositioningMapLocation.setText(location);
+				binding.settingsPhonePositioningMapLocation.setText(finalLocation);
 
-				binding.settingsPhonePositioningMapLocation.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View view) {
-						LocationUtil.showMapDialog(getContext(), () -> {setLocationSetting();});
-					}
-				});
+				binding.settingsPhonePositioningMapLocation.setOnClickListener(view -> LocationUtil.showMapDialog(getContext(), () -> {setLocationSetting();}));
 			});
 		}
 	}

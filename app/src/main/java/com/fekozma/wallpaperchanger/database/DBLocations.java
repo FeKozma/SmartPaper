@@ -12,7 +12,7 @@ public class DBLocations extends DBManager {
 	public static final String COL_IMAGE = "image";
 	public static final String COL_LON = "lon";
 	public static final String COL_LAT = "lat";
-	public static final String COL_ADDRESS = "adress";
+	public static final String COL_ADDRESS = "address";
 
 	public String image;
 	public Double lon;
@@ -62,7 +62,7 @@ public class DBLocations extends DBManager {
 		}
 	}
 
-	public DBLocations setLocation(String image, Double lat, Double lon, String adress) {
+	public DBLocations setLocation(String image, Double lat, Double lon, String address) {
 		synchronized (DBManager.DATABASE_NAME) {
 
 			SQLiteDatabase db = getWritableDatabase();
@@ -74,7 +74,7 @@ public class DBLocations extends DBManager {
 				String[] whereArgs = { image, latStr.substring(0, 12), lonStr.substring(0, 12) };
 
 				ContentValues updateValues = new ContentValues();
-				updateValues.put(COL_ADDRESS, adress);
+				updateValues.put(COL_ADDRESS, address);
 
 				int updated = db.update(TABLES.LOCATIONS.name, updateValues, where, whereArgs);
 				if (updated == 0) {
@@ -83,7 +83,8 @@ public class DBLocations extends DBManager {
 					insertValues.put(COL_IMAGE, image);
 					insertValues.put(COL_LAT, latStr.substring(0, 12));
 					insertValues.put(COL_LON, lonStr.substring(0, 12));
-					insertValues.put(COL_ADDRESS, adress);
+					insertValues.put(COL_ADDRESS, address);
+
 					db.insert(TABLES.LOCATIONS.name, null, insertValues);
 					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Location inserted for image " + image);
 				} else {
@@ -95,7 +96,7 @@ public class DBLocations extends DBManager {
 				db.close();
 			}
 
-			return new DBLocations(adress, image, lat, lon);
+			return new DBLocations(address, image, lat, lon);
 		}
 	}
 
@@ -111,8 +112,8 @@ public class DBLocations extends DBManager {
 		synchronized (DBManager.DATABASE_NAME) {
 
 			Cursor cursor = getReadableDatabase().query(
-				TABLES.LOCATIONS.name,                         // Table name
-				TABLES.LOCATIONS.getColumns(),                  // Columns to return
+				TABLES.LOCATIONS.name,                       // Table name
+				TABLES.LOCATIONS.getColumns(),               // Columns to return
 				COL_IMAGE + " = ?",                          // WHERE clause
 				new String[]{imageName},                     // WHERE arguments
 				null,                                        // groupBy
@@ -125,7 +126,6 @@ public class DBLocations extends DBManager {
 
 	}
 
-
 	public void deleteLocations(String[] selected) {
 		synchronized (DBManager.DATABASE_NAME) {
 
@@ -133,7 +133,11 @@ public class DBLocations extends DBManager {
 			db.beginTransaction();
 			try {
 				for (String image : selected) {
-					db.delete(TABLES.LOCATIONS.name, COL_IMAGE + " = ?", new String[]{image});
+					db.delete(
+						TABLES.LOCATIONS.name,
+						COL_IMAGE + " = ?",
+						new String[] { image }
+					);
 				}
 				db.setTransactionSuccessful();
 			} finally {
@@ -143,13 +147,19 @@ public class DBLocations extends DBManager {
 		}
 	}
 
-	public void deleteLocation(DBImage image, String adress) {
+	public void deleteLocation(DBImage image, String address) {
 		synchronized (DBManager.DATABASE_NAME) {
 
 			SQLiteDatabase db = getWritableDatabase();
 			db.beginTransaction();
 			try {
-				db.delete(TABLES.LOCATIONS.name, COL_IMAGE + " = ? AND " + COL_ADDRESS + " = ?", new String[]{image.image, adress});
+				db.delete(
+					TABLES.LOCATIONS.name,
+					COL_IMAGE + " = ? AND " + COL_ADDRESS + " = ?",
+					new String[] {
+						image.image, address
+					}
+				);
 
 				db.setTransactionSuccessful();
 			} finally {

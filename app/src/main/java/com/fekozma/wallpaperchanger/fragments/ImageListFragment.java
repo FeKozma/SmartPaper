@@ -219,7 +219,7 @@ public class ImageListFragment extends Fragment {
 								() -> error.set(true));
 						}
 						if (!error.get()) {
-							Snackbar.make(binding.getRoot(), count + " images added.", Snackbar.LENGTH_LONG).show();
+							Snackbar.make(binding.getRoot(), count + " image(s) added.", Snackbar.LENGTH_LONG).show();
 						}
 					} else if (data != null && data.getData() != null) {
 						Uri imageUri = data.getData();

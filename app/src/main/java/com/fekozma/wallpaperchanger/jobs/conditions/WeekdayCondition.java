@@ -2,6 +2,7 @@ package com.fekozma.wallpaperchanger.jobs.conditions;
 
 import com.fekozma.wallpaperchanger.database.DBImage;
 import com.fekozma.wallpaperchanger.database.StaticTags;
+import com.fekozma.wallpaperchanger.database.StaticValues;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,7 +16,16 @@ public class WeekdayCondition extends ConditionalImages{
 			.collect(Collectors.toList());
 
 		if (filteredImages.isEmpty()) {
-			onImagesLoaded.onImagesLoaded(images);
+			List<DBImage> noWeekdayTags = images.stream()
+				.filter(image -> noCommonElements(List.of(image.tags), StaticValues.WEEKDAY.getTags()))
+				.collect(Collectors.toList());
+
+			if (noWeekdayTags.isEmpty()) {
+				onImagesLoaded.onImagesLoaded(images);
+			} else {
+				onImagesLoaded.onImagesLoaded(noWeekdayTags);
+			}
+
 		} else {
 			onImagesLoaded.onImagesLoaded(filteredImages);
 		}

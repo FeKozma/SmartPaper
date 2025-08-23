@@ -63,7 +63,7 @@
                 android:layout_alignBottom="@+id/mapView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/next"
+                android:src="@drawable/keyboard_arrow_right_24dp"
                 android:id="@+id/posiviveButton"
                 android:visibility="gone"
 
