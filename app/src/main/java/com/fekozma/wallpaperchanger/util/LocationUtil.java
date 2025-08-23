@@ -156,6 +156,7 @@ public class LocationUtil {
 				onSuccessListener.onSuccess(location);
 			} else  {
 				DBLog.db.addLog(DBLog.LEVELS.WARNING, "Location not found");
+				onSuccessListener.onSuccess(null);
 			}
 
 			return;
@@ -192,6 +193,7 @@ public class LocationUtil {
 			})
 			.addOnFailureListener(e -> {
 				DBLog.db.addLog(DBLog.LEVELS.ERROR, "Error getting location: " + e.getMessage());
+				onSuccessListener.onSuccess(null);
 			});
 	}
 
