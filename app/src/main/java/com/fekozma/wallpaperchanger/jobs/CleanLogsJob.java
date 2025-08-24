@@ -15,7 +15,11 @@ public class CleanLogsJob extends Worker {
 	@NonNull
 	@Override
 	public Result doWork() {
-		DBLog.db.clean();
+		try {
+			DBLog.db.clean();
+		} catch (Exception e) {
+			return Result.retry();
+		}
 		return Result.success();
 	}
 }

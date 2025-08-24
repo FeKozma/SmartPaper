@@ -3,6 +3,8 @@ package com.fekozma.wallpaperchanger.lists.tags;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,7 +58,10 @@ public class TagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 					TabLayout tablayout = dialogView.findViewById(R.id.edit_tags_dialog_tablayout);
 					ViewPager2 viewpager = dialogView.findViewById(R.id.edit_tags_dialog_viewpager2);
 
+					viewpager.setBackgroundColor(Color.argb(21, 255, 255, 255));
+
 					viewpager.setAdapter(new EditTagsDialogViewPageAdapter(images, activity.getSupportFragmentManager(), activity.getLifecycle()));
+					viewpager.setMinimumHeight(500);
 
 					tablayout.setBackgroundColor(Color.TRANSPARENT);
 

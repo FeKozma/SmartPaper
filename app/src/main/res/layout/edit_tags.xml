@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@android:color/system_on_primary_light"
+    android:background="?attr/colorBackgroundFloating"
 
     android:orientation="vertical">
 
@@ -19,6 +19,8 @@
             android:layout_width="wrap_content" />
     </RelativeLayout>
     <androidx.cardview.widget.CardView
+        app:background="?attr/colorBackgroundFloating"
+        app:cardBackgroundColor="@android:color/system_background_dark"
         app:cardCornerRadius="25dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
