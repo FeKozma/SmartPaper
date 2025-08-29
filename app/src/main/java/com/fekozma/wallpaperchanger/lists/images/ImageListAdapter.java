@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,10 +20,12 @@ import com.fekozma.wallpaperchanger.MainActivity;
 import com.fekozma.wallpaperchanger.R;
 import com.fekozma.wallpaperchanger.database.DBImage;
 import com.fekozma.wallpaperchanger.database.DBLocations;
+import com.fekozma.wallpaperchanger.database.DBLog;
 import com.fekozma.wallpaperchanger.database.ImageCategories;
 import com.fekozma.wallpaperchanger.databinding.ImageListDialogBinding;
 import com.fekozma.wallpaperchanger.lists.tags.TagsListAdapter;
 import com.fekozma.wallpaperchanger.util.ContextUtil;
+import com.fekozma.wallpaperchanger.util.GestureUtil;
 import com.fekozma.wallpaperchanger.util.ImageUtil;
 import com.google.android.flexbox.*;
 
@@ -110,13 +113,17 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListViewHolder> 
 				}
 			})
 			.create();
+
 		setImageDialogContent(view, binding, i, dialog);
 
 		dialog.show();
 		dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
+
 		return false;
 	}
+
+
 
 	private AlertDialog setImageDialogContent(View view, ImageListDialogBinding binding, int i, AlertDialog dialog) {
 		ImageUtil.getImageFromAppstorage(images.get(i).image).ifPresentOrElse((file) -> {
@@ -174,10 +181,39 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListViewHolder> 
 			}
 		});
 
+
+		// navigation
+
+		GestureDetector gestureDetector = GestureUtil.getGestureDetector(dialog.getContext(), new GestureUtil.DialogSwipeListener() {
+
+			@Override
+			public void swipeLeft() {
+				if (i == images.size()-1) {
+					return;
+				}
+				images.get(i).image = DBImage.db.getImageByName(images.get(i).image.image);
+				notifyItemChanged(i);
+				setImageDialogContent(view, binding, i+1, dialog);
+			}
+
+			@Override
+			public void swipeRight() {
+				if (i == 0) {
+					return;
+				}
+				images.get(i).image = DBImage.db.getImageByName(images.get(i).image.image);
+				notifyItemChanged(i);
+				setImageDialogContent(view, binding, i-1, dialog);
+			}
+		});
+		binding.rootView.setOnTouchListener((v, event) ->
+			gestureDetector.onTouchEvent(event)
+		);
+
 		if (i == images.size()-1) {
-			binding.previous.setVisibility(View.GONE);
+			binding.next.setVisibility(View.GONE);
 		} else {
-			binding.previous.setVisibility(View.VISIBLE);
+			binding.next.setVisibility(View.VISIBLE);
 			binding.next.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
