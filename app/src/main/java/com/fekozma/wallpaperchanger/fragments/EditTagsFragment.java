@@ -12,27 +12,20 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.fekozma.wallpaperchanger.R;
-import com.fekozma.wallpaperchanger.database.DBLog;
-import com.fekozma.wallpaperchanger.lists.tags.TagsListAdapter;
-import com.fekozma.wallpaperchanger.util.ContextUtil;
-import com.google.android.flexbox.FlexboxLayoutManager;
-import com.google.android.flexbox.FlexDirection;
-import com.google.android.flexbox.FlexWrap;
-import com.google.android.flexbox.AlignItems;
-import com.google.android.flexbox.JustifyContent;
-import com.fekozma.wallpaperchanger.lists.images.ImageTagEditorListAdapter;
 import com.fekozma.wallpaperchanger.database.DBImage;
+import com.fekozma.wallpaperchanger.database.DBLog;
 import com.fekozma.wallpaperchanger.databinding.EditTagsBinding;
+import com.fekozma.wallpaperchanger.lists.images.ImageTagEditorListAdapter;
+import com.fekozma.wallpaperchanger.lists.tags.TagsListAdapter;
+import com.google.android.flexbox.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class EditTagsFragment extends Fragment {
 
 	public static final String ARG_IMAGES = "images";
-	private EditTagsBinding binding;
-
 	DBImage[] images;
+	private EditTagsBinding binding;
 
 	@Override
 	public View onCreateView(
@@ -46,7 +39,7 @@ public class EditTagsFragment extends Fragment {
 			images = new DBImage[0];
 
 		} else {
-			DBLog.db.addLog(DBLog.LEVELS.DEBUG, "-> Ediiting " + images.length + " images");
+			DBLog.db.addLog(DBLog.LEVELS.DEBUG, "-> Editing " + images.length + " images");
 		}
 		binding = EditTagsBinding.inflate(inflater, container, false);
 		return binding.getRoot();

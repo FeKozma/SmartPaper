@@ -8,10 +8,6 @@ import com.fekozma.wallpaperchanger.database.DBLog;
 
 public class GestureUtil {
 
-	public abstract static class DialogSwipeListener {
-		public abstract void swipeLeft();
-		public abstract void swipeRight();
-	}
 	public static GestureDetector getGestureDetector(Context context, DialogSwipeListener listener) {
 
 		return new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
@@ -43,5 +39,11 @@ public class GestureUtil {
 				return false;
 			}
 		});
+	}
+
+	public abstract static class DialogSwipeListener {
+		public abstract void swipeLeft();
+
+		public abstract void swipeRight();
 	}
 }

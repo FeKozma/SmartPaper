@@ -35,8 +35,7 @@ public class ImageListViewHolder extends RecyclerView.ViewHolder {
 		bubbleCat.setVisibility(View.GONE);
 	}
 
-	public void setImage(DBImage dbImage)
-	{
+	public void setImage(DBImage dbImage) {
 
 		ImageUtil.getImageFromAppstorage(dbImage).ifPresentOrElse((file) -> {
 			Glide.with(ContextUtil.getContext())
@@ -77,14 +76,14 @@ public class ImageListViewHolder extends RecyclerView.ViewHolder {
 		bubbleTagNr.setText(message);
 	}
 
-	public void setNumberCat( int categories) {
+	public void setNumberCat(int categories) {
 		String message;
 		if (categories == 0) {
 			bubbleCat.setVisibility(View.GONE);
 			return;
 		} else if (categories == 1) {
 			message = "1 category";
-		} else  {
+		} else {
 			message = categories + " categories";
 		}
 		bubbleCat.setVisibility(View.VISIBLE);

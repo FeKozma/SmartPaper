@@ -52,9 +52,9 @@
         android:label="Edit"
         tools:layout="@layout/edit_tags">
 
-        <argument android:name="images"
-            app:argType="com.fekozma.wallpaperchanger.database.DBImage[]"
-            />
+        <argument
+            android:name="images"
+            app:argType="com.fekozma.wallpaperchanger.database.DBImage[]" />
 
         <action
             android:id="@+id/action_to_homescreen"

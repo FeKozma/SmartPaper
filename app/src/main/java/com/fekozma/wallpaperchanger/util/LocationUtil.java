@@ -20,7 +20,9 @@ import com.fekozma.wallpaperchanger.R;
 import com.fekozma.wallpaperchanger.api.HttpClient;
 import com.fekozma.wallpaperchanger.api.NominatimService;
 import com.fekozma.wallpaperchanger.database.DBLog;
-import com.google.android.gms.location.*;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.osmdroid.api.IGeoPoint;
@@ -80,7 +82,7 @@ public class LocationUtil {
 		}
 		mapView.getOverlays().add(marker);
 
-		mapView.setOnTouchListener((v, event) -> {
+		mapView.setOnTouchListener((view, event) -> {
 			if (event.getAction() == MotionEvent.ACTION_UP) {
 				Projection proj = mapView.getProjection();
 				GeoPoint tapped = (GeoPoint) proj.fromPixels((int) event.getX(), (int) event.getY());
@@ -113,7 +115,7 @@ public class LocationUtil {
 			double lon;
 			if (selectedPoint != null && (lat = selectedPoint.getLatitude()) != 0 && (lon = selectedPoint.getLongitude()) != 0) {
 
-				DBLog.db.addLog(DBLog.LEVELS.DEBUG, "user commited: Lat: " + lat + ", Lon: " + lon);
+				DBLog.db.addLog(DBLog.LEVELS.DEBUG, "User commited: Lat: " + lat + ", Lon: " + lon);
 
 				onResult.accept(lat, lon);
 				dialog.dismiss();
@@ -130,8 +132,8 @@ public class LocationUtil {
 			DisplayMetrics dm = context.getResources().getDisplayMetrics();
 
 
-			dialog.getWindow().getDecorView().setPadding((int)(dm.widthPixels * 0.07), 0, (int)(dm.widthPixels * 0.07), 0);
-			dialog.getWindow().getDecorView().getLayoutParams().height = (int)(dm.heightPixels * 0.85);
+			dialog.getWindow().getDecorView().setPadding((int) (dm.widthPixels * 0.07), 0, (int) (dm.widthPixels * 0.07), 0);
+			dialog.getWindow().getDecorView().getLayoutParams().height = (int) (dm.heightPixels * 0.85);
 		}
 	}
 
@@ -154,7 +156,7 @@ public class LocationUtil {
 
 				DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Using cashed locations (lat, lon): " + lat + ", " + lon);
 				onSuccessListener.onSuccess(location);
-			} else  {
+			} else {
 				DBLog.db.addLog(DBLog.LEVELS.WARNING, "Location not found");
 				onSuccessListener.onSuccess(null);
 			}
@@ -200,8 +202,8 @@ public class LocationUtil {
 
 	public static void getLocationName(double lat, double lon, Consumer<String> callback) {
 
-			GeoPoint geoPoint = new GeoPoint(lat, lon);
-			Geocoder geocoder = new Geocoder(ContextUtil.getContext(), Locale.getDefault());
+		GeoPoint geoPoint = new GeoPoint(lat, lon);
+		Geocoder geocoder = new Geocoder(ContextUtil.getContext(), Locale.getDefault());
 		Executors.newSingleThreadExecutor().execute(() -> {
 
 			geocoder.getFromLocation(
@@ -221,8 +223,7 @@ public class LocationUtil {
 
 						callback.accept(addressText);
 						getAddressFromAPI(geoPoint.getLatitude(), geoPoint.getLongitude(), callback);
-					}
-					else {
+					} else {
 						callback.accept("Unknown");
 					}
 				}
@@ -261,55 +262,95 @@ public class LocationUtil {
 
 	private static GeoPoint getDefaultLocationForCountry(String countryCode) {
 		switch (countryCode) {
-			case "SE": return new GeoPoint(59.3293, 18.0686); // Sweden - Stockholm
-			case "NO": return new GeoPoint(59.9139, 10.7522); // Norway - Oslo
-			case "DK": return new GeoPoint(55.6761, 12.5683); // Denmark - Copenhagen
-			case "FI": return new GeoPoint(60.1695, 24.9354); // Finland - Helsinki
-			case "IS": return new GeoPoint(64.1265, -21.8174); // Iceland - Reykjavik
+			case "SE":
+				return new GeoPoint(59.3293, 18.0686); // Sweden - Stockholm
+			case "NO":
+				return new GeoPoint(59.9139, 10.7522); // Norway - Oslo
+			case "DK":
+				return new GeoPoint(55.6761, 12.5683); // Denmark - Copenhagen
+			case "FI":
+				return new GeoPoint(60.1695, 24.9354); // Finland - Helsinki
+			case "IS":
+				return new GeoPoint(64.1265, -21.8174); // Iceland - Reykjavik
 
-			case "DE": return new GeoPoint(51.1657, 10.4515); // Germany
-			case "FR": return new GeoPoint(46.2276, 2.2137); // France
-			case "GB": return new GeoPoint(51.509865, -0.118092); // UK - London
-			case "IE": return new GeoPoint(53.3498, -6.2603); // Ireland - Dublin
-			case "NL": return new GeoPoint(52.3676, 4.9041); // Netherlands - Amsterdam
-			case "BE": return new GeoPoint(50.8503, 4.3517); // Belgium - Brussels
-			case "CH": return new GeoPoint(46.8182, 8.2275); // Switzerland
-			case "AT": return new GeoPoint(47.5162, 14.5501); // Austria
-			case "IT": return new GeoPoint(41.8719, 12.5674); // Italy - Rome
-			case "ES": return new GeoPoint(40.4637, -3.7492); // Spain - Madrid
-			case "PT": return new GeoPoint(38.7169, -9.1399); // Portugal - Lisbon
+			case "DE":
+				return new GeoPoint(51.1657, 10.4515); // Germany
+			case "FR":
+				return new GeoPoint(46.2276, 2.2137); // France
+			case "GB":
+				return new GeoPoint(51.509865, -0.118092); // UK - London
+			case "IE":
+				return new GeoPoint(53.3498, -6.2603); // Ireland - Dublin
+			case "NL":
+				return new GeoPoint(52.3676, 4.9041); // Netherlands - Amsterdam
+			case "BE":
+				return new GeoPoint(50.8503, 4.3517); // Belgium - Brussels
+			case "CH":
+				return new GeoPoint(46.8182, 8.2275); // Switzerland
+			case "AT":
+				return new GeoPoint(47.5162, 14.5501); // Austria
+			case "IT":
+				return new GeoPoint(41.8719, 12.5674); // Italy - Rome
+			case "ES":
+				return new GeoPoint(40.4637, -3.7492); // Spain - Madrid
+			case "PT":
+				return new GeoPoint(38.7169, -9.1399); // Portugal - Lisbon
 
-			case "PL": return new GeoPoint(51.9194, 19.1451); // Poland
-			case "CZ": return new GeoPoint(49.8175, 15.4730); // Czech Republic
-			case "SK": return new GeoPoint(48.6690, 19.6990); // Slovakia
-			case "HU": return new GeoPoint(47.1625, 19.5033); // Hungary
-			case "RO": return new GeoPoint(45.9432, 24.9668); // Romania
-			case "BG": return new GeoPoint(42.7339, 25.4858); // Bulgaria
-			case "HR": return new GeoPoint(45.1000, 15.2000); // Croatia
+			case "PL":
+				return new GeoPoint(51.9194, 19.1451); // Poland
+			case "CZ":
+				return new GeoPoint(49.8175, 15.4730); // Czech Republic
+			case "SK":
+				return new GeoPoint(48.6690, 19.6990); // Slovakia
+			case "HU":
+				return new GeoPoint(47.1625, 19.5033); // Hungary
+			case "RO":
+				return new GeoPoint(45.9432, 24.9668); // Romania
+			case "BG":
+				return new GeoPoint(42.7339, 25.4858); // Bulgaria
+			case "HR":
+				return new GeoPoint(45.1000, 15.2000); // Croatia
 
-			case "GR": return new GeoPoint(37.9838, 23.7275); // Greece - Athens
-			case "TR": return new GeoPoint(39.9208, 32.8541); // Turkey - Ankara
+			case "GR":
+				return new GeoPoint(37.9838, 23.7275); // Greece - Athens
+			case "TR":
+				return new GeoPoint(39.9208, 32.8541); // Turkey - Ankara
 
-			case "US": return new GeoPoint(39.8283, -98.5795); // USA - Center
-			case "CA": return new GeoPoint(56.1304, -106.3468); // Canada
-			case "MX": return new GeoPoint(23.6345, -102.5528); // Mexico
+			case "US":
+				return new GeoPoint(39.8283, -98.5795); // USA - Center
+			case "CA":
+				return new GeoPoint(56.1304, -106.3468); // Canada
+			case "MX":
+				return new GeoPoint(23.6345, -102.5528); // Mexico
 
-			case "BR": return new GeoPoint(-14.2350, -51.9253); // Brazil
-			case "AR": return new GeoPoint(-38.4161, -63.6167); // Argentina
-			case "CL": return new GeoPoint(-35.6751, -71.5430); // Chile
+			case "BR":
+				return new GeoPoint(-14.2350, -51.9253); // Brazil
+			case "AR":
+				return new GeoPoint(-38.4161, -63.6167); // Argentina
+			case "CL":
+				return new GeoPoint(-35.6751, -71.5430); // Chile
 
-			case "CN": return new GeoPoint(35.8617, 104.1954); // China
-			case "JP": return new GeoPoint(36.2048, 138.2529); // Japan
-			case "KR": return new GeoPoint(37.5665, 126.9780); // South Korea - Seoul
-			case "IN": return new GeoPoint(20.5937, 78.9629); // India
+			case "CN":
+				return new GeoPoint(35.8617, 104.1954); // China
+			case "JP":
+				return new GeoPoint(36.2048, 138.2529); // Japan
+			case "KR":
+				return new GeoPoint(37.5665, 126.9780); // South Korea - Seoul
+			case "IN":
+				return new GeoPoint(20.5937, 78.9629); // India
 
-			case "AU": return new GeoPoint(-25.2744, 133.7751); // Australia
-			case "NZ": return new GeoPoint(-40.9006, 174.8860); // New Zealand
+			case "AU":
+				return new GeoPoint(-25.2744, 133.7751); // Australia
+			case "NZ":
+				return new GeoPoint(-40.9006, 174.8860); // New Zealand
 
-			case "RU": return new GeoPoint(61.5240, 105.3188); // Russia
-			case "UA": return new GeoPoint(48.3794, 31.1656); // Ukraine
+			case "RU":
+				return new GeoPoint(61.5240, 105.3188); // Russia
+			case "UA":
+				return new GeoPoint(48.3794, 31.1656); // Ukraine
 
-			default: return new GeoPoint(0.0, 0.0); // Fallback - Equator
+			default:
+				return new GeoPoint(0.0, 0.0); // Fallback - Equator
 		}
 	}
 }
