@@ -1,90 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout android:layout_height="wrap_content"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
-    android:padding="6dp"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="wrap_content"
+    android:padding="6dp">
+
     <androidx.cardview.widget.CardView
-        android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
-        app:cardCornerRadius="10dp"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        app:cardCornerRadius="10dp">
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
 
             <ImageView
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
                 android:id="@+id/image_item_imageview"
-                android:scaleType="centerCrop"
                 android:layout_width="100dp"
-                android:layout_height="200dp"/>
-            <RelativeLayout
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <RelativeLayout
                 android:id="@+id/image_item_selection"
                 android:layout_width="100dp"
-                android:layout_height="200dp">
+                android:layout_height="200dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@android:color/holo_blue_light"
                     android:alpha="0.3"
-                    />
+                    android:background="@android:color/holo_blue_light" />
+
                 <ImageView
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:layout_centerInParent="true"
-                    android:src="@drawable/check_circle_24dp"/>
+                    android:src="@drawable/check_circle_24dp" />
             </RelativeLayout>
 
             <LinearLayout
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
                 android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_height="wrap_content">
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
 
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/image_list_item_nr_tags_bubble"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
                     android:layout_marginBottom="5dp"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    app:cardCornerRadius="100dp"
-                    >
+                    app:cardCornerRadius="100dp">
 
                     <TextView
                         android:id="@+id/image_list_item_nr_tags_text"
-                        android:paddingHorizontal="9dp"
-                        android:text="0"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-                    </TextView>
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="9dp"
+                        android:text="0"></TextView>
 
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/image_list_item_nr_categories_bubble"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
                     android:layout_marginBottom="5dp"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    app:cardCornerRadius="100dp"
-                    >
+                    app:cardCornerRadius="100dp">
 
                     <TextView
                         android:id="@+id/image_list_item_nr_categories_text"
-                        android:paddingHorizontal="9dp"
-                        android:text="0"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-                    </TextView>
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="9dp"
+                        android:text="0"></TextView>
 
                 </androidx.cardview.widget.CardView>
 

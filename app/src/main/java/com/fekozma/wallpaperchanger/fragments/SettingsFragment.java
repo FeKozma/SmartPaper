@@ -44,9 +44,9 @@ public class SettingsFragment extends Fragment {
 		binding.settingsLockscreenSwitch.setChecked(SharedPreferencesUtil.getBoolean(SharedPreferencesUtil.KEYS.ONLY_LOCKSCREEN));
 		binding.settingsLockscreenSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
-			public void onCheckedChanged(@NonNull CompoundButton compoundButton, boolean b) {
-				DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Setting only lockscreen to " + b);
-				SharedPreferencesUtil.setBoolean(SharedPreferencesUtil.KEYS.ONLY_LOCKSCREEN, b);
+			public void onCheckedChanged(@NonNull CompoundButton compoundButton, boolean isChecked) {
+				DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Setting only lockscreen to " + isChecked);
+				SharedPreferencesUtil.setBoolean(SharedPreferencesUtil.KEYS.ONLY_LOCKSCREEN, isChecked);
 			}
 		});
 
@@ -152,7 +152,7 @@ public class SettingsFragment extends Fragment {
 		Activity activity = getActivity();
 		if (activity != null && !activity.isFinishing()) {
 			if (location.endsWith(" län")) {
-				location = location.substring(0, location.length()-4);
+				location = location.substring(0, location.length() - 4);
 			}
 			if (location.length() > 20 && location.contains(",")) {
 				location = location.substring(0, location.indexOf(","));
@@ -161,7 +161,9 @@ public class SettingsFragment extends Fragment {
 			binding.getRoot().post(() -> {
 				binding.settingsPhonePositioningMapLocation.setText(finalLocation);
 
-				binding.settingsPhonePositioningMapLocation.setOnClickListener(view -> LocationUtil.showMapDialog(getContext(), () -> {setLocationSetting();}));
+				binding.settingsPhonePositioningMapLocation.setOnClickListener(view -> LocationUtil.showMapDialog(getContext(), () -> {
+					setLocationSetting();
+				}));
 			});
 		}
 	}

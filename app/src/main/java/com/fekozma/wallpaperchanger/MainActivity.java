@@ -7,17 +7,19 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.provider.Settings;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.WindowInsetsController;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.os.PowerManager;
-import android.provider.Settings;
-import android.util.Log;
-
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
@@ -35,19 +37,44 @@ import androidx.work.WorkManager;
 
 import com.fekozma.wallpaperchanger.database.DBLog;
 import com.fekozma.wallpaperchanger.databinding.MainActivityBinding;
-import com.fekozma.wallpaperchanger.util.*;
-
-import android.view.*;
+import com.fekozma.wallpaperchanger.util.ContextUtil;
+import com.fekozma.wallpaperchanger.util.LocationUtil;
+import com.fekozma.wallpaperchanger.util.SharedPreferencesUtil;
+import com.fekozma.wallpaperchanger.util.ZipUtil;
 
 public class MainActivity extends AppCompatActivity {
 
-	private static boolean forceNavbar = false;
-	private static WindowInsetsController windowInsetsController;
-	private AppBarConfiguration appBarConfiguration;
-	private MainActivityBinding binding;
 	private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
 	private static final int REQUEST_BACKGROUND_LOCATION = 1002;
+	private static boolean forceNavbar = false;
+	private static WindowInsetsController windowInsetsController;
+	private static SystemBarListener systemBarShowListerner;
+	private AppBarConfiguration appBarConfiguration;
+	private MainActivityBinding binding;
 	private ActivityResultLauncher<Intent> importZipLauncher;
+
+	public static void forceNavbar() {
+		forceNavbar = true;
+		if (windowInsetsController != null) {
+			windowInsetsController.show(WindowInsetsCompat.Type.navigationBars());
+		}
+	}
+
+	public static void freeNavbar() {
+		forceNavbar = false;
+	}
+
+	public static void setSystemBarListener(SystemBarListener viewMoved) {
+		systemBarShowListerner = viewMoved;
+		systemBarShowListerner.newOffset(0);
+
+	}
+
+	private static void systemBarStateChanged(int offset) {
+		if (systemBarShowListerner != null) {
+			systemBarShowListerner.newOffset(offset);
+		}
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -164,36 +191,6 @@ public class MainActivity extends AppCompatActivity {
 		NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 	}
 
-	public static void forceNavbar() {
-		forceNavbar = true;
-		if (windowInsetsController != null) {
-			windowInsetsController.show(WindowInsetsCompat.Type.navigationBars());
-		}
-	}
-
-	public static void freeNavbar() {
-		forceNavbar = false;
-	}
-
-	public interface SystemBarListener {
-		public void newOffset(int offset);
-	}
-
-	private static SystemBarListener systemBarShowListerner;
-
-	public static void setSystemBarListener(SystemBarListener viewMoved) {
-		systemBarShowListerner = viewMoved;
-		systemBarShowListerner.newOffset(0);
-
-	}
-
-	private static void systemBarStateChanged(int offset) {
-		if (systemBarShowListerner != null) {
-			systemBarShowListerner.newOffset(offset);
-		}
-	}
-
-
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -206,7 +203,8 @@ public class MainActivity extends AppCompatActivity {
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
 
-		NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);;
+		NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+		;
 
 		// Get the current destination
 		NavDestination destination = navController.getCurrentDestination();
@@ -234,7 +232,8 @@ public class MainActivity extends AppCompatActivity {
 
 		if (id == R.id.action_settings) {
 
-			NavController navcontroller = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);;
+			NavController navcontroller = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+			;
 			navcontroller.navigate(R.id.action_to_settingsFragment);
 
 			return true;
@@ -256,7 +255,8 @@ public class MainActivity extends AppCompatActivity {
 			dialog.show();
 
 		} else if (id == R.id.action_log) {
-			NavController navcontroller = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);;
+			NavController navcontroller = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+			;
 			navcontroller.navigate(R.id.action_to_logFragment);
 
 			return true;
@@ -279,8 +279,8 @@ public class MainActivity extends AppCompatActivity {
 
 		if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 			AlertDialog dialog = new AlertDialog.Builder(this).setTitle("GPS Permission")
-				.setMessage("This app uses position data to retriev weather information, eighter from your phones GPS tracker or a selected location.\n\nYou can change your preference later in Settings.")
-				.setPositiveButton("Grant GPS premission", (d, i) -> {
+				.setMessage("This app uses position data to retrieve weather information. It is either through your phone's tracker GPS (if permission is granted) or from a selected location.\\n\\nYou can change your preference later in Settings.")
+				.setPositiveButton("Grant GPS permission", (d, i) -> {
 					ActivityCompat.requestPermissions(
 						this,
 						new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
@@ -302,12 +302,12 @@ public class MainActivity extends AppCompatActivity {
 								startActivity(intent);
 							})
 							.setNegativeButton("Cancel", null).create();
-							dialog2.getWindow().setBackgroundDrawableResource(R.drawable.dialog_background);
+						dialog2.getWindow().setBackgroundDrawableResource(R.drawable.dialog_background);
 
-							dialog2.show();
+						dialog2.show();
 					}
 
-				}).setNeutralButton("Pick a location", (d, i) -> {
+				}).setNeutralButton("Select a location", (d, i) -> {
 					LocationUtil.showMapDialog(this, this::checkGpsPermissions);
 				}).create();
 
@@ -345,5 +345,9 @@ public class MainActivity extends AppCompatActivity {
 
 			dialog.show();
 		}
+	}
+
+	public interface SystemBarListener {
+		public void newOffset(int offset);
 	}
 }

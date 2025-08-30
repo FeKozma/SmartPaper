@@ -20,7 +20,6 @@ import com.fekozma.wallpaperchanger.MainActivity;
 import com.fekozma.wallpaperchanger.R;
 import com.fekozma.wallpaperchanger.database.DBImage;
 import com.fekozma.wallpaperchanger.database.DBLocations;
-import com.fekozma.wallpaperchanger.database.DBLog;
 import com.fekozma.wallpaperchanger.database.ImageCategories;
 import com.fekozma.wallpaperchanger.databinding.ImageListDialogBinding;
 import com.fekozma.wallpaperchanger.lists.tags.TagsListAdapter;
@@ -42,7 +41,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListViewHolder> 
 
 	public ImageListAdapter(Consumer<Integer> onSelectionChange) {
 		this.onSelectionChange = onSelectionChange;
-		images = DBImage.db.getImages().stream().map(img -> new ListImageItem(img)).collect(Collectors.toList());
+		images = DBImage.db.getImages().stream().map(ListImageItem::new).collect(Collectors.toList());
 	}
 
 	@NonNull
@@ -66,7 +65,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListViewHolder> 
 
 		int locations = DBLocations.db.getLocationByImageName(item.image.image).size();
 		holder.setNumberTag(item.image.tags.length + locations);
-		holder.setNumberCat((int)count + (locations > 0 ? 1 : 0));
+		holder.setNumberCat((int) count + (locations > 0 ? 1 : 0));
 		holder.itemView.setOnClickListener(v -> {
 			if (getSelected().length == 0) {
 				viewImage(v, holder.getBindingAdapterPosition());
@@ -122,7 +121,6 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListViewHolder> 
 
 		return false;
 	}
-
 
 
 	private AlertDialog setImageDialogContent(View view, ImageListDialogBinding binding, int i, AlertDialog dialog) {
@@ -188,12 +186,12 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListViewHolder> 
 
 			@Override
 			public void swipeLeft() {
-				if (i == images.size()-1) {
+				if (i == images.size() - 1) {
 					return;
 				}
 				images.get(i).image = DBImage.db.getImageByName(images.get(i).image.image);
 				notifyItemChanged(i);
-				setImageDialogContent(view, binding, i+1, dialog);
+				setImageDialogContent(view, binding, i + 1, dialog);
 			}
 
 			@Override
@@ -203,14 +201,14 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListViewHolder> 
 				}
 				images.get(i).image = DBImage.db.getImageByName(images.get(i).image.image);
 				notifyItemChanged(i);
-				setImageDialogContent(view, binding, i-1, dialog);
+				setImageDialogContent(view, binding, i - 1, dialog);
 			}
 		});
 		binding.rootView.setOnTouchListener((v, event) ->
 			gestureDetector.onTouchEvent(event)
 		);
 
-		if (i == images.size()-1) {
+		if (i == images.size() - 1) {
 			binding.next.setVisibility(View.GONE);
 		} else {
 			binding.next.setVisibility(View.VISIBLE);
@@ -219,7 +217,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListViewHolder> 
 				public void onClick(View v) {
 					images.get(i).image = DBImage.db.getImageByName(images.get(i).image.image);
 					notifyItemChanged(i);
-					setImageDialogContent(view, binding, i+1, dialog);
+					setImageDialogContent(view, binding, i + 1, dialog);
 				}
 			});
 		}
@@ -234,7 +232,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListViewHolder> 
 				public void onClick(View v) {
 					images.get(i).image = DBImage.db.getImageByName(images.get(i).image.image);
 					notifyItemChanged(i);
-					setImageDialogContent(view, binding, i-1, dialog);
+					setImageDialogContent(view, binding, i - 1, dialog);
 				}
 			});
 		}
@@ -243,7 +241,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListViewHolder> 
 	}
 
 	private int nrSelections() {
-		return (int)images.stream().filter(image -> image.selected).count();
+		return (int) images.stream().filter(image -> image.selected).count();
 	}
 
 	@Override
@@ -259,7 +257,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListViewHolder> 
 
 		List<DBImage> selections = List.of(getSelected());
 		List<ListImageItem> copyImages = new ArrayList<>(this.images);
-		for (int i = copyImages.size()-1; i >= 0; i--) {
+		for (int i = copyImages.size() - 1; i >= 0; i--) {
 			if (selections.contains(copyImages.get(i).image)) {
 				this.images.remove(i);
 				notifyItemRemoved(i);
@@ -271,7 +269,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListViewHolder> 
 	public void notifySelectedRemovedTags() {
 		List<DBImage> selections = List.of(getSelected());
 		List<ListImageItem> copyImages = new ArrayList<>(this.images);
-		for (int i = copyImages.size()-1; i >= 0; i--) {
+		for (int i = copyImages.size() - 1; i >= 0; i--) {
 			if (selections.contains(copyImages.get(i).image)) {
 				this.images.get(i).selected = false;
 				this.images.get(i).image.tags = new String[0];
@@ -284,7 +282,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListViewHolder> 
 	public void clearSelections() {
 		List<DBImage> selections = List.of(getSelected());
 		List<ListImageItem> copyImages = new ArrayList<>(this.images);
-		for (int i = copyImages.size()-1; i >= 0; i--) {
+		for (int i = copyImages.size() - 1; i >= 0; i--) {
 			if (selections.contains(copyImages.get(i).image)) {
 				this.images.get(i).selected = false;
 				notifyItemChanged(i);

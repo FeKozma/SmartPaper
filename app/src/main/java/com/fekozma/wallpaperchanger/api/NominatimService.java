@@ -20,26 +20,6 @@ public interface NominatimService {
 		@SerializedName("address")
 		public Address address;
 
-		public static class Address {
-			@SerializedName("city")
-			public String city;
-
-			@SerializedName("town")
-			public String town;
-
-			@SerializedName("village")
-			public String village;
-
-			@SerializedName("municipality")
-			public String municipality;
-
-			@SerializedName("county")
-			public String county;
-
-			@SerializedName("state")
-			public String state;
-		}
-
 		public String getPrimaryPlaceName() {
 			if (address.city != null) return address.city;
 			if (address.town != null) return address.town;
@@ -61,6 +41,26 @@ public interface NominatimService {
 				return primary + ", " + region;
 			}
 			return primary != null ? primary : region;
+		}
+
+		public static class Address {
+			@SerializedName("city")
+			public String city;
+
+			@SerializedName("town")
+			public String town;
+
+			@SerializedName("village")
+			public String village;
+
+			@SerializedName("municipality")
+			public String municipality;
+
+			@SerializedName("county")
+			public String county;
+
+			@SerializedName("state")
+			public String state;
 		}
 	}
 }

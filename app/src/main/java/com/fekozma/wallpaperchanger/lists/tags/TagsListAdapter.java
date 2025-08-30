@@ -3,8 +3,6 @@ package com.fekozma.wallpaperchanger.lists.tags;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -111,7 +109,7 @@ public class TagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 						}).create();
 					dialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_background);
 
-						dialog.show();
+					dialog.show();
 				}
 			}, holder.getBindingAdapterPosition() == 0);
 		} else {
@@ -146,6 +144,7 @@ public class TagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 	private class TagItem {
 		String tag;
 		int color;
+
 		TagItem(String tag, int color) {
 			this.tag = tag;
 			this.color = color;

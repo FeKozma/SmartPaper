@@ -1,15 +1,14 @@
 package com.fekozma.wallpaperchanger.jobs.conditions;
 
+import com.fekozma.wallpaperchanger.BuildConfig;
 import com.fekozma.wallpaperchanger.api.HttpClient;
 import com.fekozma.wallpaperchanger.api.WeatherApi;
 import com.fekozma.wallpaperchanger.database.DBImage;
 import com.fekozma.wallpaperchanger.database.DBLog;
-import com.fekozma.wallpaperchanger.database.ImageStaticTags;
 import com.fekozma.wallpaperchanger.database.ImageCategories;
+import com.fekozma.wallpaperchanger.database.ImageStaticTags;
 import com.fekozma.wallpaperchanger.util.LocationUtil;
 import com.fekozma.wallpaperchanger.util.SharedPreferencesUtil;
-import com.fekozma.wallpaperchanger.BuildConfig;
-
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +18,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class WeatherCondition extends ConditionalImages{
+public class WeatherCondition extends ConditionalImages {
 	@Override
 	public void getImages(List<DBImage> images, OnImagesLoaded onImagesLoaded) {
 
@@ -32,7 +31,7 @@ public class WeatherCondition extends ConditionalImages{
 				return;
 			}
 			WeatherApi weatherApi = HttpClient.getWeatherApi();
-			DBLog.db.addLog(DBLog.LEVELS.DEBUG, "getting weather");
+			DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Retrieving weather information.");
 			Call<WeatherApi.Response> call = weatherApi.getWeather(location.getLatitude(), location.getLongitude(), apiKey, "metric");
 
 			if (!apiKey.isEmpty()) {

@@ -13,14 +13,11 @@ import java.util.List;
 
 public class DBLog extends DBManager {
 
-	public static DBLog db = new DBLog();
-
 	public static final String COL_MESSAGE = "message";
 	public static final String COL_DATE = "date";
 	public static final String COL_LEVEL = "level";
 	private static final DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
-
-
+	public static DBLog db = new DBLog();
 	public String message;
 	public String date;
 	public String level;
@@ -31,7 +28,8 @@ public class DBLog extends DBManager {
 		this.level = level;
 	}
 
-	private DBLog() {}
+	private DBLog() {
+	}
 
 	public void clean() {
 		DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Cleaning logs");
@@ -42,23 +40,6 @@ public class DBLog extends DBManager {
 			db.close();
 		}
 		DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Logs cleaned");
-	}
-
-	public enum LEVELS {
-		DEBUG("d"),
-		INFO("i"),
-		WARNING("w"),
-		ERROR("e");
-
-		private final String name;
-
-		LEVELS(String name) {
-			this.name = name;
-		}
-
-		public String getName() {
-			return name;
-		}
 	}
 
 	public List<DBLog> getLogs() {
@@ -85,7 +66,6 @@ public class DBLog extends DBManager {
 		}
 
 
-
 		synchronized (DBManager.DATABASE_NAME) {
 			SQLiteDatabase db = getWritableDatabase();
 
@@ -103,7 +83,6 @@ public class DBLog extends DBManager {
 
 		return new DBLog(message, LocalDate.now().toString(), level.name);
 	}
-
 
 	private List<DBLog> getLogs(Cursor cursor) {
 		List<DBLog> dbLogs = new ArrayList<>();
@@ -125,6 +104,24 @@ public class DBLog extends DBManager {
 			cursor.close();
 		}
 		return dbLogs;
+	}
+
+
+	public enum LEVELS {
+		DEBUG("d"),
+		INFO("i"),
+		WARNING("w"),
+		ERROR("e");
+
+		private final String name;
+
+		LEVELS(String name) {
+			this.name = name;
+		}
+
+		public String getName() {
+			return name;
+		}
 	}
 
 }

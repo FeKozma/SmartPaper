@@ -43,8 +43,8 @@ public class EditTagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 
 	@Override
 	public void onBindViewHolder(@NonNull TagsListHolder holder, int position) {
-		int pos = holder.getBindingAdapterPosition();
-		if (pos == tags.size()) {
+		int bindingAdapterPos = holder.getBindingAdapterPosition();
+		if (bindingAdapterPos == tags.size()) {
 			holder.setTag("Add " + category.name().toLowerCase());
 			holder.setNumber();
 			holder.setBackground(category.getColor());
@@ -56,23 +56,23 @@ public class EditTagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 					holder.itemView.post(() -> {
 						notifyDataSetChanged();
 					});
-			}));
+				}));
 
 			return;
 		}
 
 		TagItem tag = new TagItem();
 		try {
-			ImageStaticTags tmpTag = ImageStaticTags.valueOf(tags.get(pos));
+			ImageStaticTags tmpTag = ImageStaticTags.valueOf(tags.get(bindingAdapterPos));
 			tag.internalName = tmpTag.getInternalName();
 			tag.visibleName = tmpTag.getVissibleName();
 		} catch (IllegalArgumentException e) {
-			tag.internalName = tags.get(pos);
-			tag.visibleName = tags.get(pos);
+			tag.internalName = tags.get(bindingAdapterPos);
+			tag.visibleName = tags.get(bindingAdapterPos);
 		}
 
 		long selections = Arrays.stream(images)
-			.filter(image -> ImageCategories.hasTag(tags.get(pos), image))
+			.filter(image -> ImageCategories.hasTag(tags.get(bindingAdapterPos), image))
 			.count();
 
 		holder.setTag(tag.visibleName);
@@ -80,9 +80,9 @@ public class EditTagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 		holder.setNumber();
 		holder.setBackground(category.getColor());
 
-		if (category.getCondition() instanceof ConditionalImagesAndTags ) {
+		if (category.getCondition() instanceof ConditionalImagesAndTags) {
 			ConditionalImagesAndTags conditionalImagesAndTags = (ConditionalImagesAndTags) category.getCondition();
-			conditionalImagesAndTags.setHolder(images, tags.get(pos), holder, () -> {
+			conditionalImagesAndTags.setHolder(images, tags.get(bindingAdapterPos), holder, () -> {
 				int rmIndex = tags.indexOf(tag.internalName);
 				tags.remove(rmIndex);
 				notifyItemRemoved(rmIndex);
@@ -93,13 +93,13 @@ public class EditTagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 				@Override
 				public void onClick(View view) {
 					images = Arrays.stream(images).peek(image -> {
-						DBImage.db.removeImageTag(image, tags.get(pos));
-					}).map(image -> DBImage.db.getImageByName(image.image))
+							DBImage.db.removeImageTag(image, tags.get(bindingAdapterPos));
+						}).map(image -> DBImage.db.getImageByName(image.image))
 						.collect(Collectors.toList()).toArray(new DBImage[0]);
 
-					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Removed tag: " + tags.get(pos) + " from " + images.length + " images");
+					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Removed tag: " + tags.get(bindingAdapterPos) + " from " + images.length + " images");
 
-					onBindViewHolder(holder, pos);
+					onBindViewHolder(holder, bindingAdapterPos);
 				}
 			});
 
@@ -109,12 +109,12 @@ public class EditTagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 				public void onClick(View view) {
 
 					images = Arrays.stream(images).peek(image -> {
-							DBImage.db.upsertImageTag(image, tags.get(pos));
+							DBImage.db.upsertImageTag(image, tags.get(bindingAdapterPos));
 						}).map(image -> DBImage.db.getImageByName(image.image))
 						.collect(Collectors.toList()).toArray(new DBImage[0]);
-					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Added tag: " + tags.get(pos) + " on " + images.length + " images");
+					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Added tag: " + tags.get(bindingAdapterPos) + " on " + images.length + " images");
 
-					onBindViewHolder(holder, pos);
+					onBindViewHolder(holder, bindingAdapterPos);
 				}
 			});
 		}
@@ -123,7 +123,7 @@ public class EditTagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 	@Override
 	public int getItemCount() {
 		return
-			(category.getCondition() instanceof ConditionalImagesAndTags ? 1 : 0 ) + tags.size();
+			(category.getCondition() instanceof ConditionalImagesAndTags ? 1 : 0) + tags.size();
 	}
 
 	private static class TagItem {
