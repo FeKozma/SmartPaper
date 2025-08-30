@@ -13,11 +13,12 @@ import java.util.stream.Collectors;
 
 public enum ImageCategories {
 
-	WEATHER("weather", R.color.weather, true, new WeatherCondition(), List.of(ImageStaticTags.WEATHER_CLEAR, ImageStaticTags.WEATHER_LO_CLOUD, ImageStaticTags.WEATHER_HI_CLOUD, ImageStaticTags.WEATHER_FOGGY, ImageStaticTags.WEATHER_SNOW, ImageStaticTags.WEATHER_RAIN, ImageStaticTags.WEATHER_DRIZZLE, ImageStaticTags.WEATHER_THUNDERSTORM)),
-	TIME("time", R.color.time, new TimeCondition(), List.of(ImageStaticTags.TIME_MORNING, ImageStaticTags.TIME_MIDDAY, ImageStaticTags.TIME_EVENING, ImageStaticTags.TIME_NIGHT)),
-	WEEKDAY("weekday", R.color.weekday, new WeekdayCondition(), List.of(ImageStaticTags.WEEKDAY_MONDAY, ImageStaticTags.WEEKDAY_TUESDAY, ImageStaticTags.WEEKDAY_WEDNESDAY, ImageStaticTags.WEEKDAY_THURSDAY, ImageStaticTags.WEEKDAY_FRIDAY, ImageStaticTags.WEEKDAY_SATURDAY, ImageStaticTags.WEEKDAY_SUNDAY)),
-	LOCATION("nearby", R.color.location, true, new LocationCondition(), List.of());
+	WEATHER(0, "Weather", R.color.weather, true, new WeatherCondition(), List.of(ImageStaticTags.WEATHER_CLEAR, ImageStaticTags.WEATHER_LO_CLOUD, ImageStaticTags.WEATHER_HI_CLOUD, ImageStaticTags.WEATHER_FOGGY, ImageStaticTags.WEATHER_SNOW, ImageStaticTags.WEATHER_RAIN, ImageStaticTags.WEATHER_DRIZZLE, ImageStaticTags.WEATHER_THUNDERSTORM)),
+	LOCATION(1, "Nearby", R.color.location, true, new LocationCondition(), List.of()),
+	TIME(2, "Time", R.color.time, new TimeCondition(), List.of(ImageStaticTags.TIME_MORNING, ImageStaticTags.TIME_MIDDAY, ImageStaticTags.TIME_EVENING, ImageStaticTags.TIME_NIGHT)),
+	WEEKDAY(3, "Weekday", R.color.weekday, new WeekdayCondition(), List.of(ImageStaticTags.WEEKDAY_MONDAY, ImageStaticTags.WEEKDAY_TUESDAY, ImageStaticTags.WEEKDAY_WEDNESDAY, ImageStaticTags.WEEKDAY_THURSDAY, ImageStaticTags.WEEKDAY_FRIDAY, ImageStaticTags.WEEKDAY_SATURDAY, ImageStaticTags.WEEKDAY_SUNDAY));
 
+	private final int startingPos;
 	private final ConditionalImages condition;
 	private final ConditionalImagesAndTags conditionWTag;
 	private final String category;
@@ -25,7 +26,8 @@ public enum ImageCategories {
 	private final @ColorInt int color;
 	private boolean needsGps = false;
 
-	ImageCategories(String category, int color, ConditionalImages condition, List<ImageStaticTags> tags) {
+	ImageCategories(int startingPos, String category, int color, ConditionalImages condition, List<ImageStaticTags> tags) {
+		this.startingPos = startingPos;
 		this.condition = condition;
 		this.conditionWTag = null;
 		this.category = category;
@@ -33,7 +35,8 @@ public enum ImageCategories {
 		this.color = color;
 	}
 
-	ImageCategories(String category, int color, boolean needsGps, ConditionalImages condition, List<ImageStaticTags> tags) {
+	ImageCategories(int startingPos, String category, int color, boolean needsGps, ConditionalImages condition, List<ImageStaticTags> tags) {
+		this.startingPos = startingPos;
 		this.condition = condition;
 		this.conditionWTag = null;
 		this.category = category;
@@ -42,7 +45,8 @@ public enum ImageCategories {
 		this.needsGps = needsGps;
 	}
 
-	ImageCategories(String category, int color, boolean needsGps, ConditionalImagesAndTags condition, List<ImageStaticTags> tags) {
+	ImageCategories(int startingPos, String category, int color, boolean needsGps, ConditionalImagesAndTags condition, List<ImageStaticTags> tags) {
+		this.startingPos = startingPos;
 		this.condition = null;
 		this.conditionWTag = condition;
 		this.category = category;
@@ -107,7 +111,20 @@ public enum ImageCategories {
 		return SharedPreferencesUtil.getBoolean(SharedPreferencesUtil.KEYS.CATEGORY_ACTIVE, this);
 	}
 
+	public void setActive(boolean isActive) {
+		SharedPreferencesUtil.setBoolean(SharedPreferencesUtil.KEYS.CATEGORY_ACTIVE, this, isActive);
+	}
+
 	public boolean needsGps() {
 		return this.needsGps;
+	}
+
+	public int getStartingPos() {
+		int posFromSharedPref = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.CATEGORY_POSITION, this);
+		return posFromSharedPref < 0 ? startingPos : posFromSharedPref;
+	}
+
+	public void setStartingPos(int pos) {
+		SharedPreferencesUtil.setInt(SharedPreferencesUtil.KEYS.CATEGORY_POSITION, this, pos);
 	}
 }

@@ -1,12 +1,43 @@
 package com.fekozma.wallpaperchanger.util;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.fekozma.wallpaperchanger.database.DBLog;
 
+import java.util.function.BiConsumer;
+
 public class GestureUtil {
+
+	public static ItemTouchHelper.SimpleCallback getSimpleTouchCallback(BiConsumer<Integer, Integer> onItemMove) {
+		return new ItemTouchHelper.SimpleCallback(
+			ItemTouchHelper.UP | ItemTouchHelper.DOWN,
+			0) {  // no swipe delete
+
+			@Override
+			public boolean onMove(@NonNull RecyclerView recyclerView,
+								  @NonNull RecyclerView.ViewHolder viewHolder,
+								  @NonNull RecyclerView.ViewHolder target) {
+				int fromPos = viewHolder.getBindingAdapterPosition();
+				int toPos = target.getBindingAdapterPosition();
+				DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Moved from " + fromPos + " to " + toPos);
+				onItemMove.accept(fromPos, toPos);
+				return true;
+			}
+
+			@Override
+			public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+				// Not used
+			}
+
+		};
+	};
 
 	public static GestureDetector getGestureDetector(Context context, DialogSwipeListener listener) {
 

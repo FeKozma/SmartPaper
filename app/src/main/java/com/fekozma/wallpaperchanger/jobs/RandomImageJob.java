@@ -19,6 +19,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Executor;
@@ -44,8 +45,17 @@ public class RandomImageJob extends ListenableWorker {
 
 			executor.execute(() -> {
 				try {
-					List<ImageCategories> categories = Stream.of(ImageCategories.values()).filter(ImageCategories::isActive).collect(Collectors.toList());
+					List<ImageCategories> categories =
+						Stream.of(ImageCategories.values())
+							.filter(ImageCategories::isActive)
+							.collect(Collectors.toList());
 
+					if (categories.isEmpty()) {
+						completer.set(Result.success());
+						return;
+					}
+
+					categories.sort(Comparator.comparingInt(ImageCategories::getStartingPos));
 					if (categories.stream().anyMatch(ImageCategories::needsGps)) {
 						LocationUtil.getCurrentLocation((location) -> {
 							continueWork(categories, DBImage.db.getImages(), location, completer);
