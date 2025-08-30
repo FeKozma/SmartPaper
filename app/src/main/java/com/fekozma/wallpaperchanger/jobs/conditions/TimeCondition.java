@@ -1,5 +1,7 @@
 package com.fekozma.wallpaperchanger.jobs.conditions;
 
+import android.location.Location;
+
 import com.fekozma.wallpaperchanger.database.DBImage;
 import com.fekozma.wallpaperchanger.database.ImageCategories;
 import com.fekozma.wallpaperchanger.database.ImageStaticTags;
@@ -9,7 +11,7 @@ import java.util.stream.Collectors;
 
 public class TimeCondition extends ConditionalImages {
 	@Override
-	public void getImages(List<DBImage> images, OnImagesLoaded onImagesLoaded) {
+	public void getImages(List<DBImage> images, Location location, OnImagesLoaded onImagesLoaded) {
 
 
 		List<DBImage> filteredImages = images.stream().filter(image -> List.of(image.tags).contains(ImageStaticTags.getTime().getInternalName())).collect(Collectors.toList());
