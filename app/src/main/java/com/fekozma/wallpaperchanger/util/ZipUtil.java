@@ -21,6 +21,7 @@ import com.fekozma.wallpaperchanger.R;
 import com.fekozma.wallpaperchanger.database.DBLog;
 import com.fekozma.wallpaperchanger.database.DBManager;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.io.*;
 import java.nio.channels.FileChannel;
@@ -93,6 +94,7 @@ public class ZipUtil {
 				throw new RuntimeException("Import succeeded\nThis is intential. Not beautiful, but it works");
 
 			} catch (IOException e) {
+				FirebaseCrashlytics.getInstance().recordException(e);
 				mainHandler.post(() -> {
 					Toast.makeText(context, "Import failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
 				});
@@ -125,9 +127,10 @@ public class ZipUtil {
 				File dbFile = activity.getDatabasePath("wallpaperchanger.db");
 
 				File exportDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), exportName);
+
 				if (!exportDir.exists()) exportDir.mkdirs();
 
-				File zipFile = new File(exportDir, exportName + ".zip");
+				File zipFile = getNewZipFile(exportDir, exportName);
 				ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile));
 
 				if (wallpapersDir.exists()) {
@@ -143,14 +146,27 @@ public class ZipUtil {
 				});
 
 			} catch (IOException e) {
+				FirebaseCrashlytics.getInstance().recordException(e);
 				DBLog.db.addLog(DBLog.LEVELS.ERROR, "Could not export dataset: " + e.getMessage(), e);
 				Snackbar.make(activity.findViewById(android.R.id.content), "Export failed: " + e.getMessage(), Snackbar.LENGTH_LONG).show();
 			}
 			dialog.dismiss();
 
 		});
+	}
 
+	private static File getNewZipFile(File dir, String name) {
+		File zipFile = new File(dir, name + ".zip");
 
+		if (zipFile.exists()) {
+			int count = 1;
+			do {
+				String newName = name + "(" + count + ").zip";
+				zipFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), newName);
+				count++;
+			} while (zipFile.exists());
+		}
+		return zipFile;
 	}
 
 	private static File prepareSanitizedDatabase(Context context) throws IOException {
@@ -211,7 +227,7 @@ public class ZipUtil {
 	public static void showExportDialog(Activity activity, File zipFile) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 		AlertDialog dialog2 = builder.setTitle("Export Successful")
-			.setMessage("Your backup ZIP file has been created.")
+			.setMessage("Your backup ZIP file has been created.\n\nName: " + zipFile.getName())
 			.setPositiveButton("Share", (dialog, which) -> {
 				shareZipFile(activity, zipFile);
 			})

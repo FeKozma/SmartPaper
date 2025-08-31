@@ -37,10 +37,8 @@ import androidx.work.WorkManager;
 
 import com.fekozma.wallpaperchanger.database.DBLog;
 import com.fekozma.wallpaperchanger.databinding.MainActivityBinding;
-import com.fekozma.wallpaperchanger.util.ContextUtil;
-import com.fekozma.wallpaperchanger.util.LocationUtil;
-import com.fekozma.wallpaperchanger.util.SharedPreferencesUtil;
-import com.fekozma.wallpaperchanger.util.ZipUtil;
+import com.fekozma.wallpaperchanger.util.*;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -52,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
 	private AppBarConfiguration appBarConfiguration;
 	private MainActivityBinding binding;
 	private ActivityResultLauncher<Intent> importZipLauncher;
+	private FirebaseAnalytics mFirebaseAnalytics;
 
 	public static void forceNavbar() {
 		forceNavbar = true;
@@ -79,6 +78,9 @@ public class MainActivity extends AppCompatActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		FirebaseLogUtil.init(this);
+		FirebaseLogUtil.logScreenEvent(MainActivity.class);
 
 		checkBatteryOptimization();
 		checkGpsPermissions();

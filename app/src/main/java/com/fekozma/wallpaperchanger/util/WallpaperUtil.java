@@ -1,5 +1,6 @@
 package com.fekozma.wallpaperchanger.util;
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import android.app.WallpaperManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,7 +16,7 @@ import java.io.IOException;
 public class WallpaperUtil {
 	private static final String TAG = "WallpaperUtil";
 
-	public static void setWallpaperFromFile2(File jpgFile) {
+	public static void setWallpaperFromFile(File jpgFile) {
 		if (jpgFile == null || !jpgFile.exists()) {
 			DBLog.db.addLog(DBLog.LEVELS.ERROR, "Error setting wallpaper; File does not exist: " + ((jpgFile == null) ? "null" : jpgFile.getName()));
 			return;
@@ -41,14 +42,17 @@ public class WallpaperUtil {
 				wallpaperManager.setBitmap(bitmap);
 			}
 			DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Updated wallpaper; " + jpgFile.getName());
+			FirebaseLogUtil.logImageWallpaperEvent();
 
 		} catch (IOException e) {
+			FirebaseCrashlytics.getInstance().recordException(e);
 			DBLog.db.addLog(DBLog.LEVELS.ERROR, "Error setting wallpaper: " + e.getMessage(), e);
 		} finally {
 			if (fis != null) {
 				try {
 					fis.close();
 				} catch (IOException e) {
+					FirebaseCrashlytics.getInstance().recordException(e);
 					DBLog.db.addLog(DBLog.LEVELS.ERROR, "Error closing file in WallpaperUtil: " + e.getMessage(), e);
 				}
 			}
