@@ -14,12 +14,20 @@ import android.widget.CompoundButton;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.fekozma.wallpaperchanger.R;
 import com.fekozma.wallpaperchanger.database.DBLog;
+import com.fekozma.wallpaperchanger.database.ImageCategories;
 import com.fekozma.wallpaperchanger.databinding.SettingsBinding;
+import com.fekozma.wallpaperchanger.lists.job_category_order.CategoryAdapter;
+import com.fekozma.wallpaperchanger.util.GestureUtil;
 import com.fekozma.wallpaperchanger.util.LocationUtil;
 import com.fekozma.wallpaperchanger.util.SharedPreferencesUtil;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class SettingsFragment extends Fragment {
 
@@ -52,7 +60,36 @@ public class SettingsFragment extends Fragment {
 
 		setWeatherSettings();
 		setLocationSettings();
+		setTagGroupsSettings();
 
+
+	}
+
+	private void setTagGroupsSettings() {
+
+		binding.tagGroupInfo.setOnClickListener(view -> {
+			AlertDialog infoDialog = new AlertDialog.Builder(getContext())
+				.setIcon(R.drawable.info_24dp)
+				.setTitle("Wallpaper Rules")
+				.setMessage("Here you can arrange and toggle the rules that decide your wallpapers. The app checks them in order: the first matching rule is used, then the next, and so on. If a rule is turned off, it will be ignored.")
+				.setPositiveButton(android.R.string.ok, (d, i) -> {
+				})
+				.create();
+			infoDialog.show();
+			infoDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_background);
+		});
+
+		CategoryAdapter adapter = new CategoryAdapter(new ArrayList<>(Arrays.asList(ImageCategories.values())));
+
+		binding.tagGroups.setLayoutManager(new LinearLayoutManager(getContext()) {
+			@Override
+			public boolean canScrollVertically() {
+				return false;
+			}
+		});
+		binding.tagGroups.setAdapter(adapter);
+
+		new ItemTouchHelper(GestureUtil.getSimpleTouchCallback(adapter::onItemMove)).attachToRecyclerView(binding.tagGroups);
 
 	}
 

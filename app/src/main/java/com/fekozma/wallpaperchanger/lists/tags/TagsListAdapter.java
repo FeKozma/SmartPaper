@@ -58,7 +58,8 @@ public class TagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 
 					viewpager.setBackgroundColor(Color.argb(21, 255, 255, 255));
 
-					viewpager.setAdapter(new EditTagsDialogViewPageAdapter(images, activity.getSupportFragmentManager(), activity.getLifecycle()));
+					EditTagsDialogViewPageAdapter pageAdapter = new EditTagsDialogViewPageAdapter(images, activity.getSupportFragmentManager(), activity.getLifecycle());
+					viewpager.setAdapter(pageAdapter);
 					viewpager.setMinimumHeight(500);
 
 					tablayout.setBackgroundColor(Color.TRANSPARENT);
@@ -84,11 +85,12 @@ public class TagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 					});
 
 					new TabLayoutMediator(tablayout, viewpager, (tab, position) -> {
-						tab.setText(ImageCategories.values()[position].getCategory());
+						ImageCategories cat = pageAdapter.getCategory(position);
+						tab.setText(cat.getCategory());
 
 						TextView tabTextView = (TextView) tab.view.getChildAt(1); // 0 = icon, 1 = text
 						if (tabTextView != null) {
-							tabTextView.setTextColor(ContextUtil.getContext().getColor(ImageCategories.values()[position].getColor())); // Your color here
+							tabTextView.setTextColor(ContextUtil.getContext().getColor(cat.getColor())); // Your color here
 						}
 
 						//tab.view.setBackgroundColor(ContextUtil.getContext().getColor(ImageCategories.values()[position].getColor()));
