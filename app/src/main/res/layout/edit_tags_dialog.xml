@@ -12,6 +12,7 @@
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/edit_tags_dialog_viewpager2"
         android:layout_width="match_parent"
+        android:minHeight="500dp"
         android:layout_height="match_parent" />
 
 

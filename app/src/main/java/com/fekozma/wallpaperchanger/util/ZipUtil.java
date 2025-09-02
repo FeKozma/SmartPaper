@@ -91,7 +91,7 @@ public class ZipUtil {
 				mainHandler.post(() -> {
 					Toast.makeText(context, "Import succeeded, restarting application", Toast.LENGTH_LONG).show();
 				});
-				throw new RuntimeException("Import succeeded\nThis is intential. Not beautiful, but it works");
+				restartApp(context);
 
 			} catch (IOException e) {
 				FirebaseCrashlytics.getInstance().recordException(e);
@@ -100,6 +100,25 @@ public class ZipUtil {
 				});
 			}
 		});
+	}
+
+	private static void restartApp(Context context) {
+		Intent intent = context.getPackageManager()
+			.getLaunchIntentForPackage(context.getPackageName());
+
+		if (intent != null) {
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+				| Intent.FLAG_ACTIVITY_NEW_TASK
+				| Intent.FLAG_ACTIVITY_CLEAR_TASK);
+			context.startActivity(intent);
+		}
+
+		if (context instanceof Activity) {
+			((Activity) context).finish();
+		}
+
+		// Kill the current process so the app fully restarts
+		Runtime.getRuntime().exit(0);
 	}
 
 	private static void deleteRecursive(File fileOrDirectory) {

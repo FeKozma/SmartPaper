@@ -227,6 +227,7 @@ public class ImageListFragment extends Fragment {
 
 					}
 					FirebaseLogUtil.logImagesAddEvent();
+					binding.imageList.smoothScrollToPosition(0);
 				}
 			});
 
