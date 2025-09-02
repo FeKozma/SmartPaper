@@ -9,16 +9,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.fekozma.wallpaperchanger.R;
 import com.fekozma.wallpaperchanger.database.DBImage;
-import com.fekozma.wallpaperchanger.database.StaticValues;
+import com.fekozma.wallpaperchanger.database.ImageCategories;
 import com.google.android.flexbox.*;
 
 public class EditTagsDialogViewPage extends Fragment {
-	private StaticValues values;
+	private ImageCategories category;
 	private DBImage[] image;
 
-	public EditTagsDialogViewPage(StaticValues values, DBImage[] image) {
+	public EditTagsDialogViewPage(ImageCategories category, DBImage[] image) {
 		super(R.layout.edit_tags_dialog_list);
-		this.values = values;
+		this.category = category;
 		this.image = image;
 	}
 
@@ -40,6 +40,6 @@ public class EditTagsDialogViewPage extends Fragment {
 		recyclerView.setLayoutManager(layoutManager);
 
 
-		recyclerView.setAdapter(new EditTagsListAdapter(values, image));
+		recyclerView.setAdapter(new EditTagsListAdapter(category, image));
 	}
 }

@@ -1,21 +1,15 @@
 package com.fekozma.wallpaperchanger.jobs;
 import android.content.Context;
-import android.os.FileUtils;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.work.ListenableWorker;
-import androidx.work.Worker;
 import androidx.work.WorkerParameters;
-import androidx.work.impl.utils.futures.SettableFuture;
 
 import com.fekozma.wallpaperchanger.database.DBImage;
 import com.fekozma.wallpaperchanger.database.DBLog;
-import com.fekozma.wallpaperchanger.database.StaticValues;
+import com.fekozma.wallpaperchanger.database.ImageCategories;
 import com.fekozma.wallpaperchanger.jobs.conditions.ConditionalImages;
-import com.fekozma.wallpaperchanger.jobs.conditions.WeatherCondition;
 import com.fekozma.wallpaperchanger.util.ImageUtil;
-import com.fekozma.wallpaperchanger.util.LocationUtil;
 import com.fekozma.wallpaperchanger.util.WallpaperUtil;
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -44,7 +38,7 @@ public class RandomImageJob extends ListenableWorker {
 
 			executor.execute(() -> {
 				try {
-					continueWork(StaticValues.values(), DBImage.db.getImages(), completer);
+					continueWork(ImageCategories.values(), DBImage.db.getImages(), completer);
 				} catch (Exception e) {
 					DBLog.db.addLog(DBLog.LEVELS.ERROR, "Setting background image work failed with error: " + e.getMessage(), e);
 					completer.set(Result.retry());
@@ -66,7 +60,7 @@ public class RandomImageJob extends ListenableWorker {
 		return ImageUtil.toFile(files.get(randomIndex));
 	}
 
-	private void continueWork(StaticValues[] values, List<DBImage> images, CallbackToFutureAdapter.Completer<Result> completer) {
+	private void continueWork(ImageCategories[] values, List<DBImage> images, CallbackToFutureAdapter.Completer<Result> completer) {
 		DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Running work " + values[0].name() + ", nr images before: " + images.size());
 
 		if (values.length > 1) {

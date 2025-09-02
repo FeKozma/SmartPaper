@@ -1,10 +1,8 @@
 package com.fekozma.wallpaperchanger.database;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.Calendar;
 
-public enum StaticTags {
+public enum ImageStaticTags {
 	WEATHER_CLEAR("clear sky"),
 	WEATHER_LO_CLOUD("lo clouds"),
 	WEATHER_HI_CLOUD("hi clouds"),
@@ -30,15 +28,19 @@ public enum StaticTags {
 
 
 	String name;
-	StaticTags(String name) {
+	ImageStaticTags(String name) {
 		this.name = name;
 	}
 
-	public String getName() {
+	public String getInternalName() {
+		return name();
+	}
+
+	public String getVissibleName() {
 		return name;
 	}
 
-	public static StaticTags getWeather(int id) {
+	public static ImageStaticTags getWeather(int id) {
 		if (id < 300) {
 			return WEATHER_THUNDERSTORM;
 		} else if (id < 400) {
@@ -59,7 +61,7 @@ public enum StaticTags {
 		return null;
 	}
 
-	public static StaticTags getTime() {
+	public static ImageStaticTags getTime() {
 		int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
 
 		if (hour < 5) {
@@ -76,7 +78,7 @@ public enum StaticTags {
 
 	}
 
-	public static StaticTags getWeekday() {
+	public static ImageStaticTags getWeekday() {
 		int day = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
 		switch (day) {
 			case Calendar.MONDAY:

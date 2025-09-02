@@ -258,14 +258,14 @@ public class DBImage extends DBManager implements Parcelable {
 		}
 	}
 
-	public List<DBImage> getImageByTag(StaticTags tag) {
+	public List<DBImage> getImageByTag(ImageStaticTags tag) {
 		synchronized (DBManager.DATABASE_NAME) {
 
 			Cursor cursor = getReadableDatabase().query(
 				TABLES.IMAGES.name,                          // Table name
 				TABLES.IMAGES.getColumns(),                  // Columns to return
 				COL_TAGS + " LIKE ?",                        // WHERE clause
-				new String[]{"%" + tag.getName() + "%"},               // WHERE arguments
+				new String[]{"%" + tag.getInternalName() + "%"},               // WHERE arguments
 				null,                                        // groupBy
 				null,                                        // having
 				null                                        // orderBy

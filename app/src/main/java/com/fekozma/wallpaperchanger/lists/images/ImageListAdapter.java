@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +18,7 @@ import com.bumptech.glide.Glide;
 import com.fekozma.wallpaperchanger.R;
 import com.fekozma.wallpaperchanger.database.DBImage;
 import com.fekozma.wallpaperchanger.database.DBLocations;
-import com.fekozma.wallpaperchanger.database.StaticValues;
+import com.fekozma.wallpaperchanger.database.ImageCategories;
 import com.fekozma.wallpaperchanger.databinding.ImageListDialogBinding;
 import com.fekozma.wallpaperchanger.lists.tags.TagsListAdapter;
 import com.fekozma.wallpaperchanger.util.ContextUtil;
@@ -56,8 +55,8 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListViewHolder> 
 		holder.setSelected(item.selected);
 
 		long count = 0;
-		for (StaticValues val : StaticValues.values()) {
-			if (!StaticValues.getSelections(val, item.image).isEmpty()) {
+		for (ImageCategories category : ImageCategories.values()) {
+			if (!ImageCategories.getSelections(category, item.image).isEmpty()) {
 				count++;
 			}
 		}

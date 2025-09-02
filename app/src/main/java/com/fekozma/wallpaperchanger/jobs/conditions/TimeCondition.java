@@ -1,13 +1,10 @@
 package com.fekozma.wallpaperchanger.jobs.conditions;
 
 import com.fekozma.wallpaperchanger.database.DBImage;
-import com.fekozma.wallpaperchanger.database.StaticTags;
-import com.fekozma.wallpaperchanger.database.StaticValues;
+import com.fekozma.wallpaperchanger.database.ImageStaticTags;
+import com.fekozma.wallpaperchanger.database.ImageCategories;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class TimeCondition extends ConditionalImages {
@@ -15,10 +12,10 @@ public class TimeCondition extends ConditionalImages {
 	public void getImages(List<DBImage> images, OnImagesLoaded onImagesLoaded) {
 
 
-		List<DBImage> filteredImages = images.stream().filter(image -> List.of(image.tags).contains(StaticTags.getTime().getName())).collect(Collectors.toList());
+		List<DBImage> filteredImages = images.stream().filter(image -> List.of(image.tags).contains(ImageStaticTags.getTime().getInternalName())).collect(Collectors.toList());
 
 		if (filteredImages.isEmpty()) {
-			List<DBImage> noTimeTags = images.stream().filter(image -> noCommonElements(List.of(image.tags), StaticValues.TIME.getTags())).collect(Collectors.toList());
+			List<DBImage> noTimeTags = images.stream().filter(image -> noCommonElements(List.of(image.tags), ImageCategories.TIME.getTags())).collect(Collectors.toList());
 			if (noTimeTags.isEmpty()) {
 				onImagesLoaded.onImagesLoaded(images);
 			} else {
