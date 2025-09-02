@@ -27,7 +27,8 @@ public class LogItemHolder extends RecyclerView.ViewHolder {
 
 	public void setDate(CharSequence date) {
 		if (!date.isEmpty()) {
-			this.date.setText(date.subSequence(0, Math.min(date.length(), 14)));
+			// Remove year and ms from timestamp to make it more readable
+			this.date.setText(date.subSequence(5, Math.min(date.length(), 19)));
 		}
 	}
 
