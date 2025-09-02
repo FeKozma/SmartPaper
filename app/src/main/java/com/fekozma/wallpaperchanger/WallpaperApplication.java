@@ -5,6 +5,7 @@ import android.app.Application;
 import android.content.pm.PackageManager;
 import android.util.Log;
 
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.work.*;
 
@@ -28,6 +29,8 @@ public class WallpaperApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 		CaocConfig.Builder.create().errorActivity(CustomErrorActivity.class).apply();
+		// Force dark mode
+		AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
 
 		ContextUtil.setContext(this.getApplicationContext());
 		new DBManager();
