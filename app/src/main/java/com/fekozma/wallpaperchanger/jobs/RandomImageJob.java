@@ -16,9 +16,9 @@ import com.fekozma.wallpaperchanger.util.ImageUtil;
 import com.fekozma.wallpaperchanger.util.LocationUtil;
 import com.fekozma.wallpaperchanger.util.WallpaperUtil;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
@@ -65,6 +65,7 @@ public class RandomImageJob extends ListenableWorker {
 					}
 
 				} catch (Exception e) {
+					FirebaseCrashlytics.getInstance().recordException(e);
 					DBLog.db.addLog(DBLog.LEVELS.ERROR, "Setting background image work failed with error: " + e.getMessage(), e);
 					completer.set(Result.retry());
 				}
@@ -101,7 +102,7 @@ public class RandomImageJob extends ListenableWorker {
 				@Override
 				public void onImagesLoaded(List<DBImage> images) {
 					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Running work " + categories.get(0).name() + ", nr images after: " + images.size());
-					WallpaperUtil.setWallpaperFromFile2(getRandomFile(images));
+					WallpaperUtil.setWallpaperFromFile(getRandomFile(images));
 					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Setting background image work completed");
 					completer.set(Result.success());
 				}

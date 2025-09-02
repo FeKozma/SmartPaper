@@ -2,12 +2,14 @@ package com.fekozma.wallpaperchanger.database;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
+import com.fekozma.wallpaperchanger.util.FirebaseLogUtil;
 import com.fekozma.wallpaperchanger.util.ImageUtil;
 
 import java.util.*;
@@ -233,6 +235,7 @@ public class DBImage extends DBManager implements Parcelable {
 				}
 			}
 		}
+		FirebaseLogUtil.logImagesDeleteEvent();
 
 		return success;
 	}
@@ -271,5 +274,9 @@ public class DBImage extends DBManager implements Parcelable {
 			return getImages(cursor);
 		}
 
+	}
+
+	public long getImagesCount() {
+		return DatabaseUtils.queryNumEntries(db.getReadableDatabase(), TABLES.IMAGES.name);
 	}
 }

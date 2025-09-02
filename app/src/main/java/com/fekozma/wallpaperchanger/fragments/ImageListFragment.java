@@ -27,6 +27,7 @@ import com.fekozma.wallpaperchanger.database.DBImage;
 import com.fekozma.wallpaperchanger.database.DBLog;
 import com.fekozma.wallpaperchanger.databinding.ImageListBinding;
 import com.fekozma.wallpaperchanger.lists.images.ImageListAdapter;
+import com.fekozma.wallpaperchanger.util.FirebaseLogUtil;
 import com.fekozma.wallpaperchanger.util.ImageUtil;
 import com.fekozma.wallpaperchanger.util.LocationUtil;
 import com.fekozma.wallpaperchanger.util.SharedPreferencesUtil;
@@ -225,6 +226,8 @@ public class ImageListFragment extends Fragment {
 						});
 
 					}
+					FirebaseLogUtil.logImagesAddEvent();
+					binding.imageList.smoothScrollToPosition(0);
 				}
 			});
 
