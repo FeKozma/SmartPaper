@@ -1,8 +1,6 @@
 package com.fekozma.wallpaperchanger;
 
 import android.Manifest;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -16,7 +14,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.provider.Settings;
-import android.util.DisplayMetrics;
 import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
@@ -37,22 +34,13 @@ import androidx.work.WorkManager;
 import com.fekozma.wallpaperchanger.database.DBLog;
 import com.fekozma.wallpaperchanger.databinding.MainActivityBinding;
 import com.fekozma.wallpaperchanger.util.*;
-import com.google.android.gms.common.util.SharedPreferencesUtils;
-import com.google.android.material.snackbar.Snackbar;
 
 import android.view.*;
-import android.widget.Toast;
-
-import org.osmdroid.api.IGeoPoint;
-import org.osmdroid.config.Configuration;
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
-import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.MapView;
-import org.osmdroid.views.Projection;
-import org.osmdroid.views.overlay.Marker;
 
 public class MainActivity extends AppCompatActivity {
 
+	private static boolean forceNavbar = false;
+	private static WindowInsetsController windowInsetsController;
 	private AppBarConfiguration appBarConfiguration;
 	private MainActivityBinding binding;
 	private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
@@ -137,12 +125,13 @@ public class MainActivity extends AppCompatActivity {
 			int totalScrollRange = appBarLayout.getTotalScrollRange();
 
 			//verticalOffset
-			if (verticalOffset == 0) {
+			if (forceNavbar || verticalOffset == 0) {
 				systemBarStateChanged(verticalOffset);
 				// fully extended
 				WindowInsetsController insetsController = getWindow().getInsetsController();
 				if (insetsController != null) {
-					insetsController.show(WindowInsetsCompat.Type.systemBars());
+					windowInsetsController = insetsController;
+					insetsController.show(WindowInsetsCompat.Type.navigationBars());
 				}
 
 			} else if (Math.abs(verticalOffset) >= totalScrollRange) {
@@ -151,7 +140,14 @@ public class MainActivity extends AppCompatActivity {
 				binding.toolbar.setVisibility(View.INVISIBLE);
 				WindowInsetsController insetsController = getWindow().getInsetsController();
 				if (insetsController != null) {
-					insetsController.hide(WindowInsetsCompat.Type.systemBars());
+					windowInsetsController = insetsController;
+					// Allow swipe gesture to temporarily reveal nav bar
+					insetsController.setSystemBarsBehavior(
+						WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+					);
+
+					// Hide navigation bar only
+					insetsController.hide(WindowInsetsCompat.Type.navigationBars());
 				}
 			} else {
 				// Somewhere in between
@@ -163,6 +159,17 @@ public class MainActivity extends AppCompatActivity {
 		});
 
 		NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+	}
+
+	public static void forceNavbar() {
+		forceNavbar = true;
+		if (windowInsetsController != null) {
+			windowInsetsController.show(WindowInsetsCompat.Type.navigationBars());
+		}
+	}
+
+	public static void freeNavbar() {
+		forceNavbar = false;
 	}
 
 	public interface SystemBarListener {

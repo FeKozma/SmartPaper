@@ -15,6 +15,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.fekozma.wallpaperchanger.MainActivity;
 import com.fekozma.wallpaperchanger.R;
 import com.fekozma.wallpaperchanger.database.DBImage;
 import com.fekozma.wallpaperchanger.database.DBLocations;
@@ -35,7 +36,6 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListViewHolder> 
 	List<ListImageItem> images;
 	Consumer<Integer> onSelectionChange;
 	private ImageListDialogBinding ImageListDialogBinding;
-	//List<DBImage> images;
 
 	public ImageListAdapter(Consumer<Integer> onSelectionChange) {
 		this.onSelectionChange = onSelectionChange;
@@ -88,7 +88,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListViewHolder> 
 	private boolean viewImage(View view, int i) {
 		ImageListDialogBinding binding = com.fekozma.wallpaperchanger.databinding.ImageListDialogBinding.inflate(LayoutInflater.from(view.getContext()));
 
-
+		MainActivity.forceNavbar();
 		FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(view.getContext());
 
 		layoutManager.setFlexDirection(FlexDirection.ROW);
@@ -106,6 +106,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListViewHolder> 
 				public void onDismiss(DialogInterface dialogInterface) {
 					images.get(i).image = DBImage.db.getImageByName(images.get(i).image.image);
 					notifyItemChanged(i);
+					MainActivity.freeNavbar();
 				}
 			})
 			.create();
@@ -113,7 +114,6 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListViewHolder> 
 
 		dialog.show();
 		dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
 
 		return false;
 	}
