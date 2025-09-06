@@ -279,7 +279,7 @@ public class MainActivity extends AppCompatActivity {
 
 		if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 			AlertDialog dialog = new AlertDialog.Builder(this).setTitle("GPS Permission")
-				.setMessage("This app uses position data to retrieve weather information. It is either through your phone's tracker GPS (if permission is granted) or from a selected location.\\n\\nYou can change your preference later in Settings.")
+				.setMessage("This app uses position data to retrieve weather information. It is either through your phone's tracker GPS (if permission is granted) or from a selected location.\n\nYou can change your preference later in Settings.")
 				.setPositiveButton("Grant GPS permission", (d, i) -> {
 					ActivityCompat.requestPermissions(
 						this,
@@ -294,7 +294,7 @@ public class MainActivity extends AppCompatActivity {
 
 						AlertDialog dialog2 = new AlertDialog.Builder(this)
 							.setTitle("Background location required")
-							.setMessage("To keep providing features even when the app isn't visible, we need permission to access your location in the background.")
+							.setMessage("To keep providing features even when the app isn't visible, we need permission to access your location in the background. \n\nPlease select \"Always allow\" positioning in settings")
 							.setPositiveButton("Open Settings", (d1, which) -> {
 								Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
 								Uri uri = Uri.fromParts("package", getPackageName(), null);

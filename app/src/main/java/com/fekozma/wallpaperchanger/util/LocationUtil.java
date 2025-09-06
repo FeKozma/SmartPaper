@@ -56,7 +56,8 @@ public class LocationUtil {
 
 
 	public static void showMapDialog(boolean showContinue, Context context, Runnable onDismiss, BiConsumer<Double, Double> onResult) {
-		// Load OSMDroid config
+		String savedLat = SharedPreferencesUtil.getString(SharedPreferencesUtil.KEYS.LOCATION_LAT);
+		String savedLon = SharedPreferencesUtil.getString(SharedPreferencesUtil.KEYS.LOCATION_LONG);
 
 		Configuration.getInstance().setUserAgentValue(ContextUtil.getContext().getPackageName());
 
@@ -68,18 +69,21 @@ public class LocationUtil {
 		mapView.setMultiTouchControls(true);
 
 		GeoPoint startPoint = LocationUtil.getDefaultCountryGeoPoint();
-		mapView.getController().setZoom(5.0);
-		mapView.getController().setCenter(startPoint);
-
 		final Marker marker = new Marker(mapView);
+		if (savedLat != null && savedLon != null) {
+			GeoPoint currentPosition = new GeoPoint(Double.parseDouble(savedLat), Double.parseDouble(savedLon));
+			marker.setPosition(currentPosition);
+			mapView.getController().setCenter(currentPosition);
+			mapViewLayout.findViewById(R.id.posiviveButton).setVisibility(View.VISIBLE);
+			mapViewLayout.findViewById(R.id.posiviveButtonBackground).setVisibility(View.VISIBLE);
+		} else {
+			mapView.getController().setCenter(startPoint);
+		}
+
+		mapView.getController().setZoom(5.0);
+
 		marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
 
-		String savedLat = SharedPreferencesUtil.getString(SharedPreferencesUtil.KEYS.LOCATION_LAT);
-		String savedLon = SharedPreferencesUtil.getString(SharedPreferencesUtil.KEYS.LOCATION_LONG);
-
-		if (savedLat != null && savedLon != null) {
-			marker.setPosition(new GeoPoint(Double.parseDouble(savedLat), Double.parseDouble(savedLon)));
-		}
 		mapView.getOverlays().add(marker);
 
 		mapView.setOnTouchListener((view, event) -> {
@@ -102,6 +106,7 @@ public class LocationUtil {
 			.setView(mapViewLayout)
 			.setOnDismissListener(dialogInterface -> onDismiss.run())
 			.create();
+		dialog.setCanceledOnTouchOutside(false);
 
 		dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
