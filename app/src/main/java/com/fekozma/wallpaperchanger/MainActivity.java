@@ -152,6 +152,10 @@ public class MainActivity extends AppCompatActivity {
 		binding.appBarLayout.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> {
 			int totalScrollRange = appBarLayout.getTotalScrollRange();
 
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+				return;
+			}
+
 			//verticalOffset
 			if (forceNavbar || verticalOffset == 0) {
 				systemBarStateChanged(verticalOffset);
@@ -219,6 +223,10 @@ public class MainActivity extends AppCompatActivity {
 			menu.findItem(R.id.action_log).setEnabled(false);
 		} else {
 			menu.findItem(R.id.action_log).setEnabled(true);
+		}
+
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+			menu.findItem(R.id.action_log).setVisible(false);
 		}
 
 		return true;

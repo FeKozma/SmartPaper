@@ -133,7 +133,7 @@ public class DBImage extends DBManager implements Parcelable {
 	public void upsertImageTag(DBImage org, String newTag) {
 		Set<String> tags = new HashSet<>();
 		org = getImageByName(org.image);
-		tags.addAll(Arrays.stream(org.tags).toList());
+		tags.addAll(Arrays.stream(org.tags).collect(Collectors.toList()));
 		tags.add(newTag);
 		upsertImage(org.image, tags.toArray(new String[0]));
 	}
@@ -141,7 +141,7 @@ public class DBImage extends DBManager implements Parcelable {
 	public void removeImageTag(DBImage org, String deleteTag) {
 		Set<String> tags = new HashSet<>();
 		org = getImageByName(org.image);
-		tags.addAll(Arrays.stream(org.tags).toList());
+		tags.addAll(Arrays.stream(org.tags).collect(Collectors.toList()));
 		tags.remove(deleteTag);
 		upsertImage(org.image, tags.toArray(new String[0]));
 	}

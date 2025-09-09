@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -252,7 +253,7 @@ public class ImageListFragment extends Fragment {
 			}
 
 			WindowInsets insets = binding.fabAdd.getRootWindowInsets();
-			if (insets != null) {
+			if (insets != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
 				android.graphics.Insets systemBars = insets.getInsets(WindowInsets.Type.systemBars() | WindowInsets.Type.navigationBars() | WindowInsetsCompat.Type.ime());
 
 				int marginBottom = (systemBars.bottom == 0 ? 100 : systemBars.bottom / 2 + 200);

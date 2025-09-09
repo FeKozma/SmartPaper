@@ -1,22 +1,31 @@
 package com.fekozma.wallpaperchanger.database;
 
 import android.content.ContentValues;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.util.Log;
 
+import com.fekozma.wallpaperchanger.util.ContextUtil;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.chrono.IsoChronology;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class DBLog extends DBManager {
 
 	public static final String COL_MESSAGE = "message";
 	public static final String COL_DATE = "date";
 	public static final String COL_LEVEL = "level";
-	private static final DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
 	public static DBLog db = new DBLog();
 	public String message;
 	public String date;
@@ -29,6 +38,16 @@ public class DBLog extends DBManager {
 	}
 
 	private DBLog() {
+	}
+
+	public String getDateString() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+		} else {
+			android.text.format.DateFormat df = new android.text.format.DateFormat();
+			return df.format("yyyy-MM-dd hh:mm:ss a", new java.util.Date()).toString();
+		}
+
 	}
 
 	public void clean() {
@@ -72,7 +91,7 @@ public class DBLog extends DBManager {
 			// Join tags into a single comma-separated string
 
 			ContentValues values = new ContentValues();
-			values.put(COL_DATE, LocalDateTime.now().format(dateFmt));
+			values.put(COL_DATE, getDateString());
 			values.put(COL_LEVEL, level.name);
 			values.put(COL_MESSAGE, message);
 
@@ -81,7 +100,11 @@ public class DBLog extends DBManager {
 			db.close();
 		}
 
-		return new DBLog(message, LocalDate.now().toString(), level.name);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			return new DBLog(message, LocalDate.now().toString(), level.name);
+		} else {
+			return new DBLog(message, getDateString(), level.name);
+		}
 	}
 
 	private List<DBLog> getLogs(Cursor cursor) {
