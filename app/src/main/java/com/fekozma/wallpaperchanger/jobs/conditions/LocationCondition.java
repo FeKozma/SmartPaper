@@ -1,6 +1,7 @@
 package com.fekozma.wallpaperchanger.jobs.conditions;
 
 import android.content.Context;
+import android.location.Location;
 
 import com.fekozma.wallpaperchanger.R;
 import com.fekozma.wallpaperchanger.database.DBImage;
@@ -19,9 +20,9 @@ import java.util.stream.Collectors;
 
 public class LocationCondition extends ConditionalImagesAndTags {
 	@Override
-	public void getImages(List<DBImage> images, OnImagesLoaded onImagesLoaded) {
+	public void getImages(List<DBImage> images, Location location, OnImagesLoaded onImagesLoaded) {
 
-		List<DBImage> insideRadius = images.stream().filter(this::isWithinRadius).collect(Collectors.toList());
+		List<DBImage> insideRadius = images.stream().filter(image -> isWithinRadius(image, location)).collect(Collectors.toList());
 		if (!insideRadius.isEmpty()) {
 			DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Found images inside radius; " + insideRadius.size());
 			onImagesLoaded.onImagesLoaded(insideRadius);
@@ -81,23 +82,18 @@ public class LocationCondition extends ConditionalImagesAndTags {
 		});
 	}
 
-	private boolean isWithinRadius(DBImage image) {
-		float[] results = new float[1];
-		String storedLatString = SharedPreferencesUtil.getString(SharedPreferencesUtil.KEYS.LOCATION_LAT);
-		String storedLonString = SharedPreferencesUtil.getString(SharedPreferencesUtil.KEYS.LOCATION_LAT);
-		int radius = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.LOCATION_RADIUS);
-
-		if (storedLatString == null || storedLonString == null) {
+	private boolean isWithinRadius(DBImage image, Location location) {
+		if (location == null) {
 			return false;
 		}
 
-		double storedLat = Double.parseDouble(storedLatString);
-		double storedLon = Double.parseDouble(storedLonString);
+		float[] results = new float[1];
+		int radius = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.LOCATION_RADIUS);
 
 		List<DBLocations> locations = DBLocations.db.getLocationByImageName(image.image);
 
-		return locations.stream().anyMatch((location) -> {
-			android.location.Location.distanceBetween(storedLat, storedLon, location.lat, location.lon, results);
+		return locations.stream().anyMatch((dbLocation) -> {
+			android.location.Location.distanceBetween(location.getLatitude(), location.getLongitude(), dbLocation.lat, dbLocation.lon, results);
 			float distanceInMeters = results[0];
 			return distanceInMeters <= radius * 1000;
 		});

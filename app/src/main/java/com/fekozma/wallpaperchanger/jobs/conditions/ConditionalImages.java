@@ -1,5 +1,7 @@
 package com.fekozma.wallpaperchanger.jobs.conditions;
 
+import android.location.Location;
+
 import com.fekozma.wallpaperchanger.database.DBImage;
 
 import java.util.HashSet;
@@ -20,7 +22,7 @@ public abstract class ConditionalImages {
 		return true; // No matches
 	}
 
-	public abstract void getImages(List<DBImage> images, OnImagesLoaded onImagesLoaded);
+	public abstract void getImages(List<DBImage> images, Location location, OnImagesLoaded onImagesLoaded);
 
 	public abstract static class OnImagesLoaded {
 		public abstract void onImagesLoaded(List<DBImage> images);

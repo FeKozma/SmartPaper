@@ -118,13 +118,14 @@ public class ImageListFragment extends Fragment {
 				.withEndAction(() -> {
 					// Switch image when faded out
 					Activity activity = getActivity();
-					if (activity == null || activity.isFinishing()) {
+					ImageListBinding tmpBinding = binding;
+					if (activity == null || activity.isFinishing() || tmpBinding == null) {
 						return;
 					}
-					binding.imageListIconPhoneContent.setImageResource(iconResIds[currentIndex]);
+					tmpBinding.imageListIconPhoneContent.setImageResource(iconResIds[currentIndex]);
 
 					// Fade in
-					binding.imageListIconPhoneContent.animate()
+					tmpBinding.imageListIconPhoneContent.animate()
 						.alpha(1f)
 						.setDuration(300)
 						.start();

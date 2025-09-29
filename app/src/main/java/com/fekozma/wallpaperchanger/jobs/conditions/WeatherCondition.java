@@ -1,5 +1,7 @@
 package com.fekozma.wallpaperchanger.jobs.conditions;
 
+import android.location.Location;
+
 import com.fekozma.wallpaperchanger.BuildConfig;
 import com.fekozma.wallpaperchanger.api.HttpClient;
 import com.fekozma.wallpaperchanger.api.WeatherApi;
@@ -20,52 +22,49 @@ import retrofit2.Response;
 
 public class WeatherCondition extends ConditionalImages {
 	@Override
-	public void getImages(List<DBImage> images, OnImagesLoaded onImagesLoaded) {
+	public void getImages(List<DBImage> images, Location location, OnImagesLoaded onImagesLoaded) {
 
 		String apiKey = BuildConfig.OPENWEATHER_API_KEY;
+		if (apiKey.isEmpty()) {
+			DBLog.db.addLog(DBLog.LEVELS.WARNING, "GET weather: Missing api key");
+			onImagesLoaded.onImagesLoaded(images);
+			return;
+		}
 
-		LocationUtil.getCurrentLocation(location -> {
+		if (location == null) {
+			onImagesLoaded.onImagesLoaded(images);
+			return;
+		}
+		WeatherApi weatherApi = HttpClient.getWeatherApi();
+		DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Retrieving weather information.");
+		Call<WeatherApi.Response> call = weatherApi.getWeather(location.getLatitude(), location.getLongitude(), apiKey, "metric");
 
-			if (location == null) {
-				onImagesLoaded.onImagesLoaded(images);
-				return;
-			}
-			WeatherApi weatherApi = HttpClient.getWeatherApi();
-			DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Retrieving weather information.");
-			Call<WeatherApi.Response> call = weatherApi.getWeather(location.getLatitude(), location.getLongitude(), apiKey, "metric");
+		DBLog.db.addLog(DBLog.LEVELS.DEBUG, "GET weather: " + call.request().url().toString().replace(apiKey, "<api_key>"));
+		call.enqueue(new Callback<WeatherApi.Response>() {
+			@Override
+			public void onResponse(Call<WeatherApi.Response> call, Response<WeatherApi.Response> response) {
+				if (response.isSuccessful() && response.body() != null) {
+					WeatherApi.Response data = response.body();
 
-			if (!apiKey.isEmpty()) {
-				DBLog.db.addLog(DBLog.LEVELS.DEBUG, "GET weather: " + call.request().url().toString().replace(apiKey, "<api_key>"));
-				call.enqueue(new Callback<WeatherApi.Response>() {
-					@Override
-					public void onResponse(Call<WeatherApi.Response> call, Response<WeatherApi.Response> response) {
-						if (response.isSuccessful() && response.body() != null) {
-							WeatherApi.Response data = response.body();
+					String currentCondition = ImageStaticTags.getWeather(data.weather.get(0).id).getInternalName();
+					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Weather retrieved; " + data.weather.get(0).description);
 
-							String currentCondition = ImageStaticTags.getWeather(data.weather.get(0).id).getInternalName();
-							DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Weather retrieved; " + data.weather.get(0).description);
+					onImagesLoaded.onImagesLoaded(getWeatherImages(images, currentCondition));
 
-							onImagesLoaded.onImagesLoaded(getWeatherImages(images, currentCondition));
-
-						} else {
-							DBLog.db.addLog(DBLog.LEVELS.ERROR, "Weather failed " + response.message());
-							SharedPreferencesUtil.setString(SharedPreferencesUtil.KEYS.WEATHER_CATEGORY, null);
-							onImagesLoaded.onImagesLoaded(getWeatherImages(images, null));
-						}
-					}
-
-					@Override
-					public void onFailure(Call<WeatherApi.Response> call, Throwable t) {
-						DBLog.db.addLog(DBLog.LEVELS.ERROR, "Weather failed " + t.getMessage(), t);
-						onImagesLoaded.onImagesLoaded(getWeatherImages(images, null));
-					}
-				});
-			} else {
-				DBLog.db.addLog(DBLog.LEVELS.WARNING, "GET weather: Missing api key");
-				onImagesLoaded.onImagesLoaded(images);
+				} else {
+					DBLog.db.addLog(DBLog.LEVELS.ERROR, "Weather failed " + response.message());
+					SharedPreferencesUtil.setString(SharedPreferencesUtil.KEYS.WEATHER_CATEGORY, null);
+					onImagesLoaded.onImagesLoaded(getWeatherImages(images, null));
+				}
 			}
 
+			@Override
+			public void onFailure(Call<WeatherApi.Response> call, Throwable t) {
+				DBLog.db.addLog(DBLog.LEVELS.ERROR, "Weather failed " + t.getMessage(), t);
+				onImagesLoaded.onImagesLoaded(getWeatherImages(images, null));
+			}
 		});
+
 	}
 
 	private List<DBImage> getWeatherImages(List<DBImage> images, String weather) {
