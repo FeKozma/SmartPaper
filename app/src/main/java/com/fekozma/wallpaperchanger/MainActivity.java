@@ -1,6 +1,7 @@
 package com.fekozma.wallpaperchanger;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -13,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.PowerManager;
 import android.provider.Settings;
 import android.util.Log;
 
@@ -51,7 +53,8 @@ public class MainActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		checkPermissions();
+		checkBatteryOptimization();
+		checkGpsPermissions();
 
 		importZipLauncher = registerForActivityResult(
 			new ActivityResultContracts.StartActivityForResult(),
@@ -269,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
 			|| super.onSupportNavigateUp();
 	}
 
-	private void checkPermissions() {
+	private void checkGpsPermissions() {
 		if (SharedPreferencesUtil.getString(SharedPreferencesUtil.KEYS.LOCATION_LAT) != null && SharedPreferencesUtil.getString(SharedPreferencesUtil.KEYS.LOCATION_LONG) != null) {
 			return;
 		}
@@ -305,7 +308,7 @@ public class MainActivity extends AppCompatActivity {
 					}
 
 				}).setNeutralButton("Pick a location", (d, i) -> {
-					LocationUtil.showMapDialog(this, this::checkPermissions);
+					LocationUtil.showMapDialog(this, this::checkGpsPermissions);
 				}).create();
 
 			dialog.setCanceledOnTouchOutside(false);
@@ -314,6 +317,33 @@ public class MainActivity extends AppCompatActivity {
 
 			dialog.show();
 
+		}
+	}
+
+	private void checkBatteryOptimization() {
+		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		String packageName = getPackageName();
+
+		if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+			AlertDialog dialog = new AlertDialog.Builder(this)
+				.setTitle("Allow the app to run in the background")
+				.setMessage("To keep your wallpaper updating automatically, the app needs permission to run without battery restrictions. If battery optimization is on, updates may stop or be delayed.")
+				.setPositiveButton(android.R.string.ok, (d, v) -> {
+				})
+				.setOnDismissListener((d) -> {
+					try {
+						Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+						intent.setData(Uri.parse("package:" + packageName));
+						startActivity(intent);
+					} catch (Exception e) {
+						// fallback: open battery optimization settings page
+						Intent intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+						startActivity(intent);
+					}
+				}).create();
+			dialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_background);
+
+			dialog.show();
 		}
 	}
 }
