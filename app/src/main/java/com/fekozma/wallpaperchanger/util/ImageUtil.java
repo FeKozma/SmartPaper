@@ -13,20 +13,20 @@ import java.util.Optional;
 
 public class ImageUtil {
 
-	private static final String folder = "wallpapers";
+	private static final String IMAGE_FOLDER = "wallpapers";
 
 	public static Optional<String> saveImageToAppstorage(Uri sourceUri, CoordinatorLayout snackbar) {
-		File destinationDir = new File(ContextUtil.getContext().getFilesDir(), folder);
+		File destinationDir = new File(ContextUtil.getContext().getFilesDir(), IMAGE_FOLDER);
 
 		if (!destinationDir.exists()) {
 			destinationDir.mkdirs();
 		}
 
-		String newFileName =  "image_" + System.currentTimeMillis() + (int)(Math.random() * 10001) + ".jpg";
+		String newFileName = "image_" + System.currentTimeMillis() + (int) (Math.random() * 10001) + ".jpg";
 		File destinationFile = new File(destinationDir, newFileName);
 
 		try (InputStream in = ContextUtil.getContext().getContentResolver().openInputStream(sourceUri);
-				OutputStream out = new FileOutputStream(destinationFile)) {
+			 OutputStream out = new FileOutputStream(destinationFile)) {
 			byte[] buf = new byte[1024];
 			int len;
 			while ((len = in.read(buf)) > 0) {
@@ -37,7 +37,7 @@ public class ImageUtil {
 		} catch (IOException e) {
 			DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Image failed: " + e.getMessage(), e);
 			Snackbar.make(snackbar, "Error saving image: " + e.getMessage(), Snackbar.LENGTH_LONG).show();
-			return Optional.ofNullable((String)null);
+			return Optional.ofNullable((String) null);
 		}
 		return Optional.of(newFileName);
 	}
@@ -47,11 +47,11 @@ public class ImageUtil {
 		if (file.exists()) {
 			return Optional.of(file);
 		}
-		return Optional.ofNullable((File)null);
+		return Optional.ofNullable((File) null);
 	}
 
 	public static File toFile(DBImage dbImage) {
-		File destinationDir = new File(ContextUtil.getContext().getFilesDir(), folder);
+		File destinationDir = new File(ContextUtil.getContext().getFilesDir(), IMAGE_FOLDER);
 		if (!destinationDir.exists()) {
 			destinationDir.mkdirs();
 		}

@@ -21,7 +21,7 @@ public class LogItemHolder extends RecyclerView.ViewHolder {
 		date = itemView.findViewById(R.id.logs_item_date);
 	}
 
-	public void setMessag(CharSequence message) {
+	public void setMessage(CharSequence message) {
 		this.message.setText(message);
 	}
 
@@ -33,7 +33,7 @@ public class LogItemHolder extends RecyclerView.ViewHolder {
 	}
 
 	public void setLevel(String level) {
-		if (level.equals(DBLog.LEVELS.DEBUG.getName()) || level.equals(DBLog.LEVELS.INFO)) {
+		if (level.equals(DBLog.LEVELS.DEBUG.getName()) || level.equals(DBLog.LEVELS.INFO.getName())) {
 			itemView.setBackgroundColor(Color.TRANSPARENT);
 		} else if (level.equals(DBLog.LEVELS.WARNING.getName())) {
 			itemView.setBackgroundColor(ContextUtil.getContext().getColor(R.color.log_warn));

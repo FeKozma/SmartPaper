@@ -7,8 +7,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.fekozma.wallpaperchanger.database.DBLog;
 
-import java.time.LocalDateTime;
-
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 import cat.ereza.customactivityoncrash.config.CaocConfig;
 
@@ -19,7 +17,7 @@ public class CustomErrorActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 
 
-		String stackTrace =  CustomActivityOnCrash.getStackTraceFromIntent(getIntent());
+		String stackTrace = CustomActivityOnCrash.getStackTraceFromIntent(getIntent());
 
 		DBLog.db.addLog(DBLog.LEVELS.ERROR, "APP CRASH\n" + stackTrace);
 

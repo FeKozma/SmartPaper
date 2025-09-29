@@ -12,16 +12,16 @@ import java.util.stream.Collectors;
 
 public enum ImageCategories {
 
-	WEATHER("weather", R.color.weather, new WeatherCondition(), List.of(ImageStaticTags.WEATHER_CLEAR, ImageStaticTags.WEATHER_LO_CLOUD, ImageStaticTags.WEATHER_HI_CLOUD, ImageStaticTags.WEATHER_FOGGY, ImageStaticTags.WEATHER_SNOW, ImageStaticTags.WEATHER_RAIN,  ImageStaticTags.WEATHER_DRIZZLE, ImageStaticTags.WEATHER_THUNDERSTORM)),
+	WEATHER("weather", R.color.weather, new WeatherCondition(), List.of(ImageStaticTags.WEATHER_CLEAR, ImageStaticTags.WEATHER_LO_CLOUD, ImageStaticTags.WEATHER_HI_CLOUD, ImageStaticTags.WEATHER_FOGGY, ImageStaticTags.WEATHER_SNOW, ImageStaticTags.WEATHER_RAIN, ImageStaticTags.WEATHER_DRIZZLE, ImageStaticTags.WEATHER_THUNDERSTORM)),
 	TIME("time", R.color.time, new TimeCondition(), List.of(ImageStaticTags.TIME_MORNING, ImageStaticTags.TIME_MIDDAY, ImageStaticTags.TIME_EVENING, ImageStaticTags.TIME_NIGHT)),
 	WEEKDAY("weekday", R.color.weekday, new WeekdayCondition(), List.of(ImageStaticTags.WEEKDAY_MONDAY, ImageStaticTags.WEEKDAY_TUESDAY, ImageStaticTags.WEEKDAY_WEDNESDAY, ImageStaticTags.WEEKDAY_THURSDAY, ImageStaticTags.WEEKDAY_FRIDAY, ImageStaticTags.WEEKDAY_SATURDAY, ImageStaticTags.WEEKDAY_SUNDAY)),
 	LOCATION("nearby", R.color.location, new LocationCondition(), List.of());
 
 	private final ConditionalImages condition;
 	private final ConditionalImagesAndTags conditionWTag;
-	private String category;
-	private List<ImageStaticTags> tags;
-	private @ColorInt int color;
+	private final String category;
+	private final List<ImageStaticTags> tags;
+	private final @ColorInt int color;
 
 	ImageCategories(String category, int color, ConditionalImages condition, List<ImageStaticTags> tags) {
 		this.condition = condition;
@@ -39,14 +39,6 @@ public enum ImageCategories {
 		this.color = color;
 	}
 
-	public List<String> getTags(DBImage[] image) {
-		if (conditionWTag != null) {
-			return conditionWTag.getTags(Arrays.asList(image));
-		} else {
-			return tags.stream().map(ImageStaticTags::getInternalName).collect(Collectors.toList());
-		}
-	}
-
 	public static List<ImageStaticTags> getSelections(ImageCategories category, DBImage image) {
 
 		List tags = List.of(image.tags);
@@ -62,16 +54,25 @@ public enum ImageCategories {
 				.filter(image -> ImageCategories.hasTag(tag, image))
 				.count();
 			return count == images.length;
-			
+
 		}).collect(Collectors.toList());
 	}
 
 	public static boolean hasTag(ImageStaticTags tag, DBImage image) {
 		return List.of(image.tags).contains(tag.getInternalName());
 	}
+
 	public static boolean hasTag(String tag, DBImage image) {
 
 		return List.of(image.tags).contains(tag);
+	}
+
+	public List<String> getTags(DBImage[] image) {
+		if (conditionWTag != null) {
+			return conditionWTag.getTags(Arrays.asList(image));
+		} else {
+			return tags.stream().map(ImageStaticTags::getInternalName).collect(Collectors.toList());
+		}
 	}
 
 	public String getCategory() {

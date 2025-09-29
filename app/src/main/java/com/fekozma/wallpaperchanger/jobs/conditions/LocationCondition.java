@@ -10,7 +10,10 @@ import com.fekozma.wallpaperchanger.lists.tags.TagsListHolder;
 import com.fekozma.wallpaperchanger.util.LocationUtil;
 import com.fekozma.wallpaperchanger.util.SharedPreferencesUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -54,16 +57,17 @@ public class LocationCondition extends ConditionalImagesAndTags {
 
 	@Override
 	public void edit(Context context, DBImage[] images, Consumer<List<String>> onTagsChanged) {
-		LocationUtil.showMapDialog(true, context, () -> {},
+		LocationUtil.showMapDialog(true, context, () -> {
+			},
 			(lat, lon) -> {
 
-			LocationUtil.getLocationName(lat, lon, (address) -> {
-				for (DBImage image : images) {
-					DBLocations.db.setLocation(image.image, lat, lon, address);
-				}
-				onTagsChanged.accept(Arrays.stream(DBLocations.db.getLocations(List.of(images).stream().map(i -> i.image).collect(Collectors.toList()))).map(loc -> loc.address).collect(Collectors.toList()));
+				LocationUtil.getLocationName(lat, lon, (address) -> {
+					for (DBImage image : images) {
+						DBLocations.db.setLocation(image.image, lat, lon, address);
+					}
+					onTagsChanged.accept(Arrays.stream(DBLocations.db.getLocations(List.of(images).stream().map(i -> i.image).collect(Collectors.toList()))).map(loc -> loc.address).collect(Collectors.toList()));
+				});
 			});
-		});
 	}
 
 	@Override

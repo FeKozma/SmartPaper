@@ -17,13 +17,23 @@ public class DBImage extends DBManager implements Parcelable {
 
 	public static final String COL_IMAGE = "image";
 	public static final String COL_TAGS = "tags";
+	public static final Creator<DBImage> CREATOR = new Creator<>() {
+		@Override
+		public DBImage createFromParcel(Parcel in) {
+			return new DBImage(in);
+		}
 
+		@Override
+		public DBImage[] newArray(int size) {
+			return new DBImage[size];
+		}
+	};
+	public static DBImage db = new DBImage();
 	public String image;
 	public String[] tags;
 
-	public static DBImage db = new DBImage();
-
-	protected DBImage() {}
+	protected DBImage() {
+	}
 
 	private DBImage(String image, String[] tags) {
 		this.image = image;
@@ -189,18 +199,6 @@ public class DBImage extends DBManager implements Parcelable {
 		dest.writeString(image);
 		dest.writeStringArray(tags);
 	}
-
-	public static final Creator<DBImage> CREATOR = new Creator<>() {
-		@Override
-		public DBImage createFromParcel(Parcel in) {
-			return new DBImage(in);
-		}
-
-		@Override
-		public DBImage[] newArray(int size) {
-			return new DBImage[size];
-		}
-	};
 
 	public boolean deleteImages(DBImage[] selected) {
 		boolean success = false;

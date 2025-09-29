@@ -1,7 +1,9 @@
 package com.fekozma.wallpaperchanger.jobs;
+
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.work.ListenableWorker;
 import androidx.work.WorkerParameters;
 
@@ -19,17 +21,17 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import androidx.concurrent.futures.CallbackToFutureAdapter;
 
 
 public class RandomImageJob extends ListenableWorker {
 
+	private static final String TAG = RandomImageJob.class.getSimpleName();
 	private static Executor executor = Executors.newSingleThreadExecutor();
 
-	private static final String TAG = RandomImageJob.class.getSimpleName();
 	public RandomImageJob(@NonNull Context context, @NonNull WorkerParameters workerParams) {
 		super(context, workerParams);
 	}
+
 	@NonNull
 	@Override
 	public ListenableFuture<Result> startWork() {
@@ -43,7 +45,7 @@ public class RandomImageJob extends ListenableWorker {
 					DBLog.db.addLog(DBLog.LEVELS.ERROR, "Setting background image work failed with error: " + e.getMessage(), e);
 					completer.set(Result.retry());
 				}
-				});
+			});
 
 			return TAG;
 		});
@@ -68,7 +70,7 @@ public class RandomImageJob extends ListenableWorker {
 				@Override
 				public void onImagesLoaded(List<DBImage> images) {
 					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Running work " + values[0].name() + ", nr images after: " + images.size());
-					continueWork(Arrays.copyOfRange(values, 1,values.length), images, completer);
+					continueWork(Arrays.copyOfRange(values, 1, values.length), images, completer);
 				}
 			});
 		} else {

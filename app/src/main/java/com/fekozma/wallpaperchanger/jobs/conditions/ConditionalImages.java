@@ -8,12 +8,6 @@ import java.util.Set;
 
 public abstract class ConditionalImages {
 
-	public abstract void getImages(List<DBImage> images, OnImagesLoaded onImagesLoaded);
-
-	public abstract static class OnImagesLoaded {
-		public abstract void onImagesLoaded(List<DBImage> images);
-	}
-
 	public static boolean noCommonElements(List<String> list1, List<String> list2) {
 		// Use a Set for fast lookup
 		Set<String> set = new HashSet<>(list1);
@@ -24,6 +18,12 @@ public abstract class ConditionalImages {
 			}
 		}
 		return true; // No matches
+	}
+
+	public abstract void getImages(List<DBImage> images, OnImagesLoaded onImagesLoaded);
+
+	public abstract static class OnImagesLoaded {
+		public abstract void onImagesLoaded(List<DBImage> images);
 	}
 
 }

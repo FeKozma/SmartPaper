@@ -1,7 +1,5 @@
 package com.fekozma.wallpaperchanger.util;
 
-import static android.app.ProgressDialog.show;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
@@ -26,7 +24,6 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.io.*;
 import java.nio.channels.FileChannel;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -34,7 +31,7 @@ import java.util.zip.ZipOutputStream;
 
 public class ZipUtil {
 
-	private static TextView progressText;
+	private static TextView progressText; // TODO: Android context class would be a memory leak here. "A static field will leak contexts."
 	private static AlertDialog dialog;
 	private static int count = 0;
 	private static Handler mainHandler = new Handler(Looper.getMainLooper());
@@ -173,7 +170,7 @@ public class ZipUtil {
 		// Open the temp copy for modification
 		SQLiteDatabase db = SQLiteDatabase.openDatabase(tempDb.getAbsolutePath(), null, SQLiteDatabase.OPEN_READWRITE);
 
-		// Run your cleanup queries
+		// Run cleanup queries
 		db.execSQL("DELETE FROM " + DBManager.TABLES.LOGS.name());
 		db.close();
 

@@ -28,16 +28,9 @@ public enum ImageStaticTags {
 
 
 	String name;
+
 	ImageStaticTags(String name) {
 		this.name = name;
-	}
-
-	public String getInternalName() {
-		return name();
-	}
-
-	public String getVissibleName() {
-		return name;
 	}
 
 	public static ImageStaticTags getWeather(int id) {
@@ -53,7 +46,7 @@ public enum ImageStaticTags {
 			return WEATHER_FOGGY;
 		} else if (id == 800) {
 			return WEATHER_CLEAR;
-		}  else if (id < 803) {
+		} else if (id < 803) {
 			return WEATHER_LO_CLOUD;
 		} else if (id < 805) {
 			return WEATHER_HI_CLOUD;
@@ -97,5 +90,13 @@ public enum ImageStaticTags {
 				return WEEKDAY_SUNDAY;
 		}
 		return WEEKDAY_SUNDAY;
+	}
+
+	public String getInternalName() {
+		return name();
+	}
+
+	public String getVissibleName() {
+		return name;
 	}
 }

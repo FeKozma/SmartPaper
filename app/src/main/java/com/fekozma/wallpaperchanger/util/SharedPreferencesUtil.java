@@ -10,28 +10,12 @@ public class SharedPreferencesUtil {
 		sharedPreferences = ContextUtil.getContext().getSharedPreferences(ContextUtil.getContext().getApplicationInfo().name, Context.MODE_PRIVATE);
 	}
 
-	public enum KEYS {
-		ONLY_LOCKSCREEN("onlylockscreen", false),
-		LOCATION_LAT("location_lat", null),
-		LOCATION_LONG("location_long", null),
-		WEATHER_CATEGORY("weather_category", null),
-		USE_GPS("use_gps", true),
-		LOCATION_RADIUS("location_radius", 5);
-
-		String key;
-		Object value;
-		KEYS(String key, Object defaultValue) {
-			this.key = key;
-			this.value = defaultValue;
-		}
-	}
-
-	// Integer
-
 	public static Integer getInt(KEYS key) {
 		checkSharedPreferences();
 		return sharedPreferences.getInt(key.key, (Integer) key.value);
 	}
+
+	// Integer
 
 	public static void setInt(KEYS key, int value) {
 		checkSharedPreferences();
@@ -69,6 +53,23 @@ public class SharedPreferencesUtil {
 	private static void checkSharedPreferences() {
 		if (sharedPreferences == null) {
 			setSharedPreferences();
+		}
+	}
+
+	public enum KEYS {
+		ONLY_LOCKSCREEN("onlylockscreen", false),
+		LOCATION_LAT("location_lat", null),
+		LOCATION_LONG("location_long", null),
+		WEATHER_CATEGORY("weather_category", null),
+		USE_GPS("use_gps", true),
+		LOCATION_RADIUS("location_radius", 5);
+
+		String key;
+		Object value;
+
+		KEYS(String key, Object defaultValue) {
+			this.key = key;
+			this.value = defaultValue;
 		}
 	}
 }

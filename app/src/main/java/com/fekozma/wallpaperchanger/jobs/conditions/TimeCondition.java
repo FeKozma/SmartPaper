@@ -1,8 +1,8 @@
 package com.fekozma.wallpaperchanger.jobs.conditions;
 
 import com.fekozma.wallpaperchanger.database.DBImage;
-import com.fekozma.wallpaperchanger.database.ImageStaticTags;
 import com.fekozma.wallpaperchanger.database.ImageCategories;
+import com.fekozma.wallpaperchanger.database.ImageStaticTags;
 
 import java.util.List;
 import java.util.stream.Collectors;

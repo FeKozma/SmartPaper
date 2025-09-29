@@ -6,20 +6,18 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 
-import com.bumptech.glide.Glide;
 import com.fekozma.wallpaperchanger.database.DBLog;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 
 public class WallpaperUtil {
 	private static final String TAG = "WallpaperUtil";
 
 	public static void setWallpaperFromFile2(File jpgFile) {
 		if (jpgFile == null || !jpgFile.exists()) {
-			DBLog.db.addLog(DBLog.LEVELS.ERROR, "Error setting wallpaper: file does not exist. " + ((jpgFile == null) ? "null": jpgFile.getName()));
+			DBLog.db.addLog(DBLog.LEVELS.ERROR, "Error setting wallpaper; File does not exist: " + ((jpgFile == null) ? "null" : jpgFile.getName()));
 			return;
 		}
 		WallpaperManager wallpaperManager = WallpaperManager.getInstance(ContextUtil.getContext());

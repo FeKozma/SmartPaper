@@ -29,7 +29,7 @@ public class ImageTagEditorListAdapter extends RecyclerView.Adapter<ImageListVie
 	@Override
 	public void onBindViewHolder(@NonNull ImageListViewHolder holder, int position) {
 		holder.setImage(images.get(position));
-		holder.setDim(300*3, 150*3);
+		holder.setDim(300 * 3, 150 * 3);
 		holder.setSelected(false);
 	}
 

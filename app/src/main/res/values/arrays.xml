@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="dropdown_radius_items" >
+    <string-array name="dropdown_radius_items">
         <item>5 km</item>
         <item>10 km</item>
         <item>20 km</item>

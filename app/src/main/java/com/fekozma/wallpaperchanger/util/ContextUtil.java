@@ -8,6 +8,7 @@ public class ContextUtil {
 	public static Context getContext() {
 		return applicationContext;
 	}
+
 	public static void setContext(Context context) {
 		applicationContext = context;
 	}

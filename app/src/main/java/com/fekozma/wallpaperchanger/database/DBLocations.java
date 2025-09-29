@@ -4,8 +4,8 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DBLocations extends DBManager {
 
@@ -13,15 +13,14 @@ public class DBLocations extends DBManager {
 	public static final String COL_LON = "lon";
 	public static final String COL_LAT = "lat";
 	public static final String COL_ADDRESS = "address";
-
+	public static DBLocations db = new DBLocations();
 	public String image;
 	public Double lon;
 	public Double lat;
 	public String address;
 
-	public static DBLocations db = new DBLocations();
-
-	protected DBLocations() {}
+	protected DBLocations() {
+	}
 
 
 	public DBLocations(String address, String image, Double lat, Double lon) {
@@ -71,7 +70,7 @@ public class DBLocations extends DBManager {
 				String where = COL_IMAGE + " = ? AND " + COL_LAT + " = ? AND " + COL_LON + " = ?";
 				String latStr = lat + "000000000000";
 				String lonStr = lon + "000000000000";
-				String[] whereArgs = { image, latStr.substring(0, 12), lonStr.substring(0, 12) };
+				String[] whereArgs = {image, latStr.substring(0, 12), lonStr.substring(0, 12)};
 
 				ContentValues updateValues = new ContentValues();
 				updateValues.put(COL_ADDRESS, address);
@@ -136,7 +135,7 @@ public class DBLocations extends DBManager {
 					db.delete(
 						TABLES.LOCATIONS.name,
 						COL_IMAGE + " = ?",
-						new String[] { image }
+						new String[]{image}
 					);
 				}
 				db.setTransactionSuccessful();
@@ -156,7 +155,7 @@ public class DBLocations extends DBManager {
 				db.delete(
 					TABLES.LOCATIONS.name,
 					COL_IMAGE + " = ? AND " + COL_ADDRESS + " = ?",
-					new String[] {
+					new String[]{
 						image.image, address
 					}
 				);

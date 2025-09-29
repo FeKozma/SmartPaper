@@ -1,12 +1,8 @@
 package com.fekozma.wallpaperchanger;
 
-import android.Manifest;
 import android.app.Application;
-import android.content.pm.PackageManager;
-import android.util.Log;
 
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.app.ActivityCompat;
 import androidx.work.*;
 
 import com.fekozma.wallpaperchanger.database.DBLog;
@@ -21,9 +17,8 @@ import cat.ereza.customactivityoncrash.config.CaocConfig;
 
 public class WallpaperApplication extends Application {
 
-	private static final String TAG = "WallpaperApplication";
 	public static final String wallpaperWorker = "random_background_worker2";
-
+	private static final String TAG = "WallpaperApplication";
 
 	@Override
 	public void onCreate() {
@@ -37,22 +32,21 @@ public class WallpaperApplication extends Application {
 		DBLog.db.addLog(DBLog.LEVELS.DEBUG, "---- Application started ----");
 		new MainActivity();
 
-		WorkManager.getInstance(ContextUtil.getContext()).enqueueUniquePeriodicWork(  wallpaperWorker, ExistingPeriodicWorkPolicy.UPDATE,
+		WorkManager.getInstance(ContextUtil.getContext()).enqueueUniquePeriodicWork(wallpaperWorker, ExistingPeriodicWorkPolicy.UPDATE,
 
 			new PeriodicWorkRequest.Builder(RandomImageJob.class, 15, TimeUnit.MINUTES)
-			.setConstraints(new Constraints.Builder()
-				.setRequiredNetworkType(NetworkType.CONNECTED)
-				.setRequiresBatteryNotLow(true)
-				.setRequiresDeviceIdle(false)
-				.build()).build());
+				.setConstraints(new Constraints.Builder()
+					.setRequiredNetworkType(NetworkType.CONNECTED)
+					.setRequiresBatteryNotLow(true)
+					.setRequiresDeviceIdle(false)
+					.build()).build());
 
-		WorkManager.getInstance(ContextUtil.getContext()).enqueueUniquePeriodicWork(  "clean_logs", ExistingPeriodicWorkPolicy.UPDATE,
+		WorkManager.getInstance(ContextUtil.getContext()).enqueueUniquePeriodicWork("clean_logs", ExistingPeriodicWorkPolicy.UPDATE,
 
 			new PeriodicWorkRequest.Builder(CleanLogsJob.class, 10, TimeUnit.HOURS)
 				.setConstraints(new Constraints.Builder()
 					.setRequiresDeviceIdle(false)
 					.build()).build());
-
 
 
 	}
