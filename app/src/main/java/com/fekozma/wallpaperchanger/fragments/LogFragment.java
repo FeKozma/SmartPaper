@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.fekozma.wallpaperchanger.database.DBLog;
 import com.fekozma.wallpaperchanger.databinding.LogsBinding;
 import com.fekozma.wallpaperchanger.lists.logs.LogListAdapter;
+import com.fekozma.wallpaperchanger.util.FirebaseLogUtil;
 
 public class LogFragment extends Fragment {
 
@@ -23,6 +24,7 @@ public class LogFragment extends Fragment {
 		Bundle savedInstanceState
 	) {
 
+		FirebaseLogUtil.logScreenEvent(this.getClass());
 		binding = LogsBinding.inflate(inflater, container, false);
 		DBLog.db.addLog(DBLog.LEVELS.DEBUG, "-> Logs");
 		return binding.getRoot();

@@ -22,6 +22,7 @@ import com.fekozma.wallpaperchanger.database.DBLog;
 import com.fekozma.wallpaperchanger.database.ImageCategories;
 import com.fekozma.wallpaperchanger.databinding.SettingsBinding;
 import com.fekozma.wallpaperchanger.lists.job_category_order.CategoryAdapter;
+import com.fekozma.wallpaperchanger.util.FirebaseLogUtil;
 import com.fekozma.wallpaperchanger.util.GestureUtil;
 import com.fekozma.wallpaperchanger.util.LocationUtil;
 import com.fekozma.wallpaperchanger.util.SharedPreferencesUtil;
@@ -39,6 +40,7 @@ public class SettingsFragment extends Fragment {
 		Bundle savedInstanceState
 	) {
 
+		FirebaseLogUtil.logScreenEvent(this.getClass());
 		binding = SettingsBinding.inflate(inflater, container, false);
 		DBLog.db.addLog(DBLog.LEVELS.DEBUG, "-> Settings");
 		return binding.getRoot();

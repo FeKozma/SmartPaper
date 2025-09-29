@@ -21,6 +21,7 @@ import com.fekozma.wallpaperchanger.R;
 import com.fekozma.wallpaperchanger.database.DBLog;
 import com.fekozma.wallpaperchanger.database.DBManager;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.io.*;
 import java.nio.channels.FileChannel;
@@ -90,14 +91,34 @@ public class ZipUtil {
 				mainHandler.post(() -> {
 					Toast.makeText(context, "Import succeeded, restarting application", Toast.LENGTH_LONG).show();
 				});
-				throw new RuntimeException("Import succeeded\nThis is intential. Not beautiful, but it works");
+				restartApp(context);
 
 			} catch (IOException e) {
+				FirebaseCrashlytics.getInstance().recordException(e);
 				mainHandler.post(() -> {
 					Toast.makeText(context, "Import failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
 				});
 			}
 		});
+	}
+
+	private static void restartApp(Context context) {
+		Intent intent = context.getPackageManager()
+			.getLaunchIntentForPackage(context.getPackageName());
+
+		if (intent != null) {
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+				| Intent.FLAG_ACTIVITY_NEW_TASK
+				| Intent.FLAG_ACTIVITY_CLEAR_TASK);
+			context.startActivity(intent);
+		}
+
+		if (context instanceof Activity) {
+			((Activity) context).finish();
+		}
+
+		// Kill the current process so the app fully restarts
+		Runtime.getRuntime().exit(0);
 	}
 
 	private static void deleteRecursive(File fileOrDirectory) {
@@ -125,9 +146,10 @@ public class ZipUtil {
 				File dbFile = activity.getDatabasePath("wallpaperchanger.db");
 
 				File exportDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), exportName);
+
 				if (!exportDir.exists()) exportDir.mkdirs();
 
-				File zipFile = new File(exportDir, exportName + ".zip");
+				File zipFile = getNewZipFile(exportDir, exportName);
 				ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile));
 
 				if (wallpapersDir.exists()) {
@@ -143,14 +165,27 @@ public class ZipUtil {
 				});
 
 			} catch (IOException e) {
+				FirebaseCrashlytics.getInstance().recordException(e);
 				DBLog.db.addLog(DBLog.LEVELS.ERROR, "Could not export dataset: " + e.getMessage(), e);
 				Snackbar.make(activity.findViewById(android.R.id.content), "Export failed: " + e.getMessage(), Snackbar.LENGTH_LONG).show();
 			}
 			dialog.dismiss();
 
 		});
+	}
 
+	private static File getNewZipFile(File dir, String name) {
+		File zipFile = new File(dir, name + ".zip");
 
+		if (zipFile.exists()) {
+			int count = 1;
+			do {
+				String newName = name + "(" + count + ").zip";
+				zipFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), newName);
+				count++;
+			} while (zipFile.exists());
+		}
+		return zipFile;
 	}
 
 	private static File prepareSanitizedDatabase(Context context) throws IOException {
@@ -211,7 +246,7 @@ public class ZipUtil {
 	public static void showExportDialog(Activity activity, File zipFile) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 		AlertDialog dialog2 = builder.setTitle("Export Successful")
-			.setMessage("Your backup ZIP file has been created.")
+			.setMessage("Your backup ZIP file has been created.\n\nName: " + zipFile.getName())
 			.setPositiveButton("Share", (dialog, which) -> {
 				shareZipFile(activity, zipFile);
 			})

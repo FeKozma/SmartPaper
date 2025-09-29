@@ -35,12 +35,11 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
+import com.fekozma.wallpaperchanger.database.DBImage;
 import com.fekozma.wallpaperchanger.database.DBLog;
 import com.fekozma.wallpaperchanger.databinding.MainActivityBinding;
-import com.fekozma.wallpaperchanger.util.ContextUtil;
-import com.fekozma.wallpaperchanger.util.LocationUtil;
-import com.fekozma.wallpaperchanger.util.SharedPreferencesUtil;
-import com.fekozma.wallpaperchanger.util.ZipUtil;
+import com.fekozma.wallpaperchanger.util.*;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -52,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
 	private AppBarConfiguration appBarConfiguration;
 	private MainActivityBinding binding;
 	private ActivityResultLauncher<Intent> importZipLauncher;
+	private FirebaseAnalytics mFirebaseAnalytics;
 
 	public static void forceNavbar() {
 		forceNavbar = true;
@@ -80,6 +80,9 @@ public class MainActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		FirebaseLogUtil.init(this);
+		FirebaseLogUtil.logScreenEvent(MainActivity.class);
+
 		checkBatteryOptimization();
 		checkGpsPermissions();
 
@@ -100,11 +103,6 @@ public class MainActivity extends AppCompatActivity {
 					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Background worker state: " + workInfo.getState());
 				}
 			});
-
-		/*Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-		Uri uri = Uri.fromParts("package", getPackageName(), null);
-		intent.setData(uri);
-		startActivity(intent);*/
 
 		binding = MainActivityBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
@@ -241,18 +239,20 @@ public class MainActivity extends AppCompatActivity {
 			ZipUtil.exportAppDataAndShare(this);
 		} else if (id == R.id.action_import) {
 
-			android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(this).setTitle("Warning!").setMessage("Importing an existing dataset will remove all local data. Do you want to continue anyway?").setPositiveButton(android.R.string.ok, (d, v) -> {
-				Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-				intent.setType("*/*");
+			if (DBImage.db.getImagesCount() > 0) {
+				android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(this)
+					.setTitle("Warning!")
+					.setMessage("Importing an existing dataset will remove all local data. Do you want to continue anyway?")
+					.setPositiveButton(android.R.string.ok, (d, v) -> {
+						importZip();
+					}).setNegativeButton(android.R.string.cancel, (d, v) -> {})
+					.create();
+				dialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_background);
 
-				intent.addCategory(Intent.CATEGORY_OPENABLE);
-				importZipLauncher.launch(intent);
-
-			}).setNegativeButton(android.R.string.cancel, (d, v) -> {
-			}).create();
-			dialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_background);
-
-			dialog.show();
+				dialog.show();
+			} else {
+				importZip();
+			}
 
 		} else if (id == R.id.action_log) {
 			NavController navcontroller = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
@@ -345,6 +345,14 @@ public class MainActivity extends AppCompatActivity {
 
 			dialog.show();
 		}
+	}
+
+	private void importZip() {
+		Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+		intent.setType("*/*");
+
+		intent.addCategory(Intent.CATEGORY_OPENABLE);
+		importZipLauncher.launch(intent);
 	}
 
 	public interface SystemBarListener {

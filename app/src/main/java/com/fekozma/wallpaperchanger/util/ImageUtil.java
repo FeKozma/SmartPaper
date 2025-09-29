@@ -7,6 +7,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.fekozma.wallpaperchanger.database.DBImage;
 import com.fekozma.wallpaperchanger.database.DBLog;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.io.*;
 import java.util.Optional;
@@ -35,6 +36,7 @@ public class ImageUtil {
 
 			DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Image saved to app storage: " + destinationFile.getName());
 		} catch (IOException e) {
+			FirebaseCrashlytics.getInstance().recordException(e);
 			DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Image failed: " + e.getMessage(), e);
 			Snackbar.make(snackbar, "Error saving image: " + e.getMessage(), Snackbar.LENGTH_LONG).show();
 			return Optional.ofNullable((String) null);

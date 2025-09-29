@@ -17,6 +17,7 @@ import com.fekozma.wallpaperchanger.database.DBLog;
 import com.fekozma.wallpaperchanger.databinding.EditTagsBinding;
 import com.fekozma.wallpaperchanger.lists.images.ImageTagEditorListAdapter;
 import com.fekozma.wallpaperchanger.lists.tags.TagsListAdapter;
+import com.fekozma.wallpaperchanger.util.FirebaseLogUtil;
 import com.google.android.flexbox.*;
 
 import java.util.List;
@@ -40,6 +41,7 @@ public class EditTagsFragment extends Fragment {
 
 		} else {
 			DBLog.db.addLog(DBLog.LEVELS.DEBUG, "-> Editing " + images.length + " images");
+			FirebaseLogUtil.logScreenEvent(this.getClass());
 		}
 		binding = EditTagsBinding.inflate(inflater, container, false);
 		return binding.getRoot();

@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -90,6 +92,7 @@ public class DBLocations extends DBManager {
 					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Location updated for image " + image);
 				}
 			} catch (Exception e) {
+				FirebaseCrashlytics.getInstance().recordException(e);
 				DBLog.db.addLog(DBLog.LEVELS.ERROR, "Could not set location; " + e.getMessage(), e);
 			} finally {
 				db.close();

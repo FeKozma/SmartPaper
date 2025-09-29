@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
+    id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
 }
 
 def localProps = new Properties()
@@ -51,6 +53,7 @@ dependencies {
     implementation libs.navigation.ui
     implementation libs.recyclerview
     implementation libs.work.runtime
+    implementation libs.firebase.crashlytics
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
@@ -64,5 +67,6 @@ dependencies {
     implementation 'org.osmdroid:osmdroid-android:6.1.20'
     implementation "androidx.concurrent:concurrent-futures:1.3.0"
 
-
+    implementation platform('com.google.firebase:firebase-bom:34.2.0')
+    implementation 'com.google.firebase:firebase-analytics'
 }
