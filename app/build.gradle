@@ -29,9 +29,18 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Add a suffix to the package name and app name
+            //applicationIdSuffix ".debug"
+            //versionNameSuffix "-debug"
+
+            // Add custom variable for code
+            buildConfigField "boolean", "IS_DEBUG_BUILD", "true"
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
         }
     }
     compileOptions {

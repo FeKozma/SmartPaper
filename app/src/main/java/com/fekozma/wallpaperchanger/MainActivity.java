@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -32,14 +33,24 @@ import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import com.fekozma.wallpaperchanger.database.DBImage;
+import com.bumptech.glide.Glide;
 import com.fekozma.wallpaperchanger.database.DBLog;
 import com.fekozma.wallpaperchanger.databinding.MainActivityBinding;
+import com.fekozma.wallpaperchanger.databinding.SnackbarWithImageBinding;
+import com.fekozma.wallpaperchanger.jobs.RandomImageJob;
 import com.fekozma.wallpaperchanger.util.*;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.android.material.snackbar.Snackbar;
+
+import android.view.*;
+import android.widget.Toast;
+
+import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -211,22 +222,14 @@ public class MainActivity extends AppCompatActivity {
 		// Get the current destination
 		NavDestination destination = navController.getCurrentDestination();
 
-		if (destination != null && destination.getId() == R.id.action_settings) {
-			// Hide the Settings menu item when we are *already* in Settings
-			menu.findItem(R.id.action_settings).setEnabled(false);
-		} else {
-			// Show it otherwise
-			menu.findItem(R.id.action_settings).setEnabled(true);
-		}
-
-		if (destination != null && destination.getId() == R.id.action_log) {
-			menu.findItem(R.id.action_log).setEnabled(false);
-		} else {
-			menu.findItem(R.id.action_log).setEnabled(true);
-		}
+		// Hide the Settings menu item when we are *already* in Settings
+		// Show it otherwise
+		menu.findItem(R.id.action_settings).setEnabled(destination == null || destination.getId() != R.id.action_settings);
 
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
 			menu.findItem(R.id.action_log).setVisible(false);
+		} else {
+			menu.findItem(R.id.action_log).setEnabled(destination == null || destination.getId() != R.id.action_log);
 		}
 
 		return true;
@@ -268,9 +271,63 @@ public class MainActivity extends AppCompatActivity {
 			navcontroller.navigate(R.id.action_to_logFragment);
 
 			return true;
+		} else if (id == R.id.action_reload) {
+			OneTimeWorkRequest request =
+				new OneTimeWorkRequest.Builder(RandomImageJob.class)
+					.build();
+
+			WorkManager workmanager = WorkManager.getInstance(this);
+			workmanager.enqueue(request);
+
+			workmanager.getWorkInfoByIdLiveData(request.getId()).observe(this, workInfo -> {
+				if (workInfo.getState().isFinished()) {
+					showSnackbar(workInfo.getOutputData().getString(RandomImageJob.RES_IMAGE));
+				} else {
+					showSnackbar(null);
+				}
+			});
 		}
 
 		return super.onOptionsItemSelected(item);
+	}
+
+	private void showSnackbar(String image) {
+		if (isFinishing() || isDestroyed()) {
+			return;
+		}
+
+		View parentView = this.findViewById(android.R.id.content);
+		// Create Snackbar without text (we'll use custom layout)
+		Snackbar snackbar = Snackbar.make(this.findViewById(android.R.id.content), "", Snackbar.LENGTH_SHORT);
+
+		Snackbar.SnackbarLayout snackbarLayout = (Snackbar.SnackbarLayout) snackbar.getView();
+		snackbarLayout.setBackgroundColor(Color.TRANSPARENT);
+
+
+		// Inflate using ViewBinding
+		LayoutInflater inflater = LayoutInflater.from(parentView.getContext());
+		SnackbarWithImageBinding binding = SnackbarWithImageBinding.inflate(inflater);
+
+		// Set up content
+		if (image != null) {
+			File imageFile = new File(this.getFilesDir() + "/wallpapers", image);
+			binding.snackbarText.setText("Background image changed");
+			Glide.with(ContextUtil.getContext())
+				.load(imageFile)
+				.centerCrop()
+				.into(binding.snackbarIcon);
+			binding.progressbar.setVisibility(View.GONE);
+			binding.snackbarIcon.setVisibility(View.VISIBLE);
+		} else {
+			binding.snackbarText.setText("loading ...");
+			binding.progressbar.setVisibility(View.VISIBLE);
+			binding.snackbarIcon.setVisibility(View.GONE);
+		}
+
+		// Add custom view
+		snackbarLayout.addView(binding.getRoot(), 0);
+
+		snackbar.show();
 	}
 
 	@Override

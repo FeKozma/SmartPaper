@@ -5,6 +5,7 @@ import android.location.Location;
 
 import androidx.annotation.NonNull;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.work.Data;
 import androidx.work.ListenableWorker;
 import androidx.work.WorkerParameters;
 
@@ -21,6 +22,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import java.io.File;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -30,8 +32,10 @@ import java.util.stream.Stream;
 
 public class RandomImageJob extends ListenableWorker {
 
+	private static Executor executor = Executors.newSingleThreadExecutor();
+	public static final String RES_IMAGE = "image";
+
 	private static final String TAG = RandomImageJob.class.getSimpleName();
-	private static final Executor executor = Executors.newSingleThreadExecutor();
 
 	public RandomImageJob(@NonNull Context context, @NonNull WorkerParameters workerParams) {
 		super(context, workerParams);
@@ -102,9 +106,10 @@ public class RandomImageJob extends ListenableWorker {
 				@Override
 				public void onImagesLoaded(List<DBImage> images) {
 					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Running work " + categories.get(0).name() + ", nr images after: " + images.size());
-					WallpaperUtil.setWallpaperFromFile(getRandomFile(images));
+					File randomImage = getRandomFile(images);
+					WallpaperUtil.setWallpaperFromFile(randomImage);
 					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Setting background image work completed");
-					completer.set(Result.success());
+					completer.set(Result.success(new Data(Map.of(RES_IMAGE, randomImage.getName()))));
 				}
 			});
 		}

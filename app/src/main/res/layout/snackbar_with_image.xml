@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    app:cardBackgroundColor="@color/cardview_dark_background"
+    android:id="@+id/cardview"
+    app:cardCornerRadius="20dp">
+
+    <LinearLayout
+        android:padding="12dp"
+        android:gravity="center_vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ProgressBar
+            android:layout_width="25dp"
+            android:layout_height="50dp"
+            android:visibility="gone"
+            android:id="@+id/progressbar"/>
+        <ImageView
+            android:id="@+id/snackbar_icon"
+            android:visibility="gone"
+            android:layout_width="25dp"
+            android:layout_height="50dp"
+            android:src="@drawable/autorenew_24dp"
+            android:contentDescription="@string/snackbar_imge"/>
+
+        <TextView
+            android:id="@+id/snackbar_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Background image changed"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:paddingStart="12dp"
+            android:paddingLeft="12dp" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

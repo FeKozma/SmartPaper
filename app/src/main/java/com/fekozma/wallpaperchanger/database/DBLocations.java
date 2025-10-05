@@ -50,7 +50,7 @@ public class DBLocations extends DBManager {
 
 					String lon = cursor.getString(cursor.getColumnIndexOrThrow(COL_LON));
 					if (lon != null && !lon.isEmpty()) {
-						dbLocation.lon = Double.valueOf(lat.substring(0, 12));
+						dbLocation.lon = Double.valueOf(lon.substring(0, 12));
 					}
 					dbLocation.address = cursor.getString(cursor.getColumnIndexOrThrow(COL_ADDRESS));
 

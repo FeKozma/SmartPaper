@@ -12,4 +12,6 @@
     <string name="error_restart_application">loading app …</string>
     <string name="action_export">Export dataset</string>
     <string name="action_import">Import dataset</string>
+    <string name="action_reload">Reload wallpaper</string>
+    <string name="snackbar_imge">new image</string>
 </resources>
