@@ -66,7 +66,7 @@ public class SharedPreferencesUtil {
 	// String
 	public static String getString(KEYS key) {
 		checkSharedPreferences();
-		return sharedPreferences.getString(key.key, null);
+		return sharedPreferences.getString(key.key, (String)key.value);
 	}
 
 	public static void setString(KEYS key, String value) {
@@ -83,14 +83,15 @@ public class SharedPreferencesUtil {
 	}
 
 	public enum KEYS {
-		ONLY_LOCKSCREEN("onlylockscreen", false),
+		ONLY_LOCKSCREEN("onlylockscreen", true),
 		LOCATION_LAT("location_lat", null),
 		LOCATION_LONG("location_long", null),
 		WEATHER_CATEGORY("weather_category", null),
 		USE_GPS("use_gps", true),
 		CATEGORY_ACTIVE("category_active", true),
 		LOCATION_RADIUS("location_radius", 5),
-		CATEGORY_POSITION("category_position", -1);
+		CATEGORY_POSITION("category_position", -1),
+		UPDATE_FREQUENCY("update_frequency", "1h");
 
 		String key;
 		Object value;

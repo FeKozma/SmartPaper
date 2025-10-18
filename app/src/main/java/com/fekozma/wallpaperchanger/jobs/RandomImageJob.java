@@ -113,7 +113,5 @@ public class RandomImageJob extends ListenableWorker {
 				}
 			});
 		}
-
-
 	}
 }

@@ -7,4 +7,14 @@
         <item>50 km</item>
         <item>100 km</item>
     </string-array>
+    <string-array name="update_frequency">
+        <item>15m</item>
+        <item>30m</item>
+        <item>1h</item>
+        <item>2h</item>
+        <item>4h</item>
+        <item>8h</item>
+        <item>12h</item>
+        <item>24h</item>
+    </string-array>
 </resources>

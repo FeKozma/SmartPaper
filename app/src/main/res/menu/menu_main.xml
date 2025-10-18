@@ -4,9 +4,9 @@
     tools:context="com.fekozma.wallpaperchanger.MainActivity">
     <item
         android:id="@+id/action_reload"
-        android:orderInCategory="100"
+        android:orderInCategory="90"
         android:title="@string/action_reload"
-        android:icon="@drawable/autorenew_24dp"
+        android:icon="@drawable/reload_image_24dp"
         app:showAsAction="always" />
     <item
         android:id="@+id/action_settings"

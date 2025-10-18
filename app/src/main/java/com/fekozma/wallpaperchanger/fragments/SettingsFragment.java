@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.fekozma.wallpaperchanger.R;
+import com.fekozma.wallpaperchanger.WallpaperApplication;
 import com.fekozma.wallpaperchanger.database.DBLog;
 import com.fekozma.wallpaperchanger.database.ImageCategories;
 import com.fekozma.wallpaperchanger.databinding.SettingsBinding;
@@ -50,7 +51,13 @@ public class SettingsFragment extends Fragment {
 	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
-		// General
+		setGeneralSettings();
+		setWeatherSettings();
+		setLocationSettings();
+		setTagGroupsSettings();
+	}
+
+	private void setGeneralSettings() {
 		binding.settingsLockscreenSwitch.setChecked(SharedPreferencesUtil.getBoolean(SharedPreferencesUtil.KEYS.ONLY_LOCKSCREEN));
 		binding.settingsLockscreenSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
@@ -60,11 +67,28 @@ public class SettingsFragment extends Fragment {
 			}
 		});
 
-		setWeatherSettings();
-		setLocationSettings();
-		setTagGroupsSettings();
+		String updateFrequencySelection = SharedPreferencesUtil.getString(SharedPreferencesUtil.KEYS.UPDATE_FREQUENCY);
+		String[] updateFrequencyAlternatives = getResources().getStringArray(R.array.update_frequency);
+		for (int i = 0; i < updateFrequencyAlternatives.length; i++) {
+			if (updateFrequencyAlternatives[i].equals(updateFrequencySelection)) {
+				binding.updateFrequency.setSelection(i);
+				break;
+			}
+		}
+		binding.updateFrequency.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+				String selection = getResources().getStringArray(R.array.update_frequency)[i];
+				SharedPreferencesUtil.setString(SharedPreferencesUtil.KEYS.UPDATE_FREQUENCY, selection);
 
+				WallpaperApplication.updateWallpaperJob(selection);
 
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> adapterView) {
+			}
+		});
 	}
 
 	private void setTagGroupsSettings() {
