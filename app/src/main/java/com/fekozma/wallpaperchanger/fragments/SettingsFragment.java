@@ -22,6 +22,7 @@ import com.fekozma.wallpaperchanger.WallpaperApplication;
 import com.fekozma.wallpaperchanger.database.DBLog;
 import com.fekozma.wallpaperchanger.database.ImageCategories;
 import com.fekozma.wallpaperchanger.databinding.SettingsBinding;
+import com.fekozma.wallpaperchanger.dialogs.TimeRangePickerDialog;
 import com.fekozma.wallpaperchanger.lists.job_category_order.CategoryAdapter;
 import com.fekozma.wallpaperchanger.util.FirebaseLogUtil;
 import com.fekozma.wallpaperchanger.util.GestureUtil;
@@ -52,9 +53,56 @@ public class SettingsFragment extends Fragment {
 		super.onViewCreated(view, savedInstanceState);
 
 		setGeneralSettings();
+		setTimeSettingS();
 		setWeatherSettings();
 		setLocationSettings();
 		setTagGroupsSettings();
+	}
+
+	private void setTimeSettingS() {
+		// Load saved time ranges or use defaults
+		int morningStart = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.MORNING_START);
+		int morningEnd = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.MORNING_END);
+
+		// Update display
+		updateMorningTimeDisplay(morningStart, morningEnd);
+
+		// Set click listener for morning_from
+		binding.morningFrom.setOnClickListener(view -> {
+			int currentStart = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.MORNING_START);
+			int currentEnd = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.MORNING_END);
+			showTimeRangePickerDialog("Select Morning Time Range", currentStart, currentEnd,
+				(startHour, endHour) -> {
+					SharedPreferencesUtil.setInt(SharedPreferencesUtil.KEYS.MORNING_START, startHour);
+					SharedPreferencesUtil.setInt(SharedPreferencesUtil.KEYS.MORNING_END, endHour);
+					updateMorningTimeDisplay(startHour, endHour);
+					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Morning time range: " + startHour + ":00 - " + endHour + ":00");
+				});
+		});
+
+		// Set click listener for morning_to
+		binding.morningTo.setOnClickListener(view -> {
+			int currentStart = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.MORNING_START);
+			int currentEnd = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.MORNING_END);
+			showTimeRangePickerDialog("Select Morning Time Range", currentStart, currentEnd,
+				(startHour, endHour) -> {
+					SharedPreferencesUtil.setInt(SharedPreferencesUtil.KEYS.MORNING_START, startHour);
+					SharedPreferencesUtil.setInt(SharedPreferencesUtil.KEYS.MORNING_END, endHour);
+					updateMorningTimeDisplay(startHour, endHour);
+					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Morning time range: " + startHour + ":00 - " + endHour + ":00");
+				});
+		});
+	}
+
+	private void updateMorningTimeDisplay(int startHour, int endHour) {
+		binding.morningFrom.setText(String.format("%02d:00", startHour));
+		binding.morningTo.setText(String.format("%02d:00", endHour));
+	}
+
+	private void showTimeRangePickerDialog(String title, int startHour, int endHour, TimeRangePickerDialog.OnTimeRangeSelectedListener listener) {
+		TimeRangePickerDialog dialog = new TimeRangePickerDialog(getContext(), title, startHour, endHour);
+		dialog.setOnTimeRangeSelectedListener(listener);
+		dialog.show();
 	}
 
 	private void setGeneralSettings() {

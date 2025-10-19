@@ -91,7 +91,9 @@ public class SharedPreferencesUtil {
 		CATEGORY_ACTIVE("category_active", true),
 		LOCATION_RADIUS("location_radius", 5),
 		CATEGORY_POSITION("category_position", -1),
-		UPDATE_FREQUENCY("update_frequency", "1h");
+		UPDATE_FREQUENCY("update_frequency", "1h"),
+		MORNING_START("morning_start", 6),
+		MORNING_END("morning_end", 12);
 
 		String key;
 		Object value;
