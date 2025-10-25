@@ -3,29 +3,29 @@ package com.fekozma.wallpaperchanger.database;
 import java.util.Calendar;
 
 public enum ImageStaticTags {
-	WEATHER_CLEAR("clear sky"),
-	WEATHER_LO_CLOUD("lo clouds"),
-	WEATHER_HI_CLOUD("hi clouds"),
-	WEATHER_FOGGY("foggy"),
-	WEATHER_SNOW("snow"),
-	WEATHER_RAIN("rain"),
-	WEATHER_DRIZZLE("drizzle"),
-	WEATHER_THUNDERSTORM("thunderstorm"),
+	WEATHER_CLEAR("Clear sky"),
+	WEATHER_LO_CLOUD("Lo clouds"),
+	WEATHER_HI_CLOUD("Hi clouds"),
+	WEATHER_FOGGY("Foggy"),
+	WEATHER_SNOW("Snow"),
+	WEATHER_RAIN("Rain"),
+	WEATHER_DRIZZLE("Drizzle"),
+	WEATHER_THUNDERSTORM("Thunderstorm"),
 
-	TIME_MORNING("morning"),
-	TIME_MIDDAY("midday"),
-	TIME_EVENING("evening"),
-	TIME_NIGHT("night"),
+	TIME_MORNING("Morning"),
+	TIME_MIDDAY("Midday"),
+	TIME_EVENING("Evening"),
+	TIME_NIGHT("Night"),
 
-	WEEKDAY_MONDAY("monday"),
-	WEEKDAY_TUESDAY("tuesday"),
-	WEEKDAY_WEDNESDAY("wednesday"),
-	WEEKDAY_THURSDAY("thursday"),
-	WEEKDAY_FRIDAY("friday"),
-	WEEKDAY_SATURDAY("saturday"),
-	WEEKDAY_SUNDAY("sunday"),
-	LOCATION("location");
+	WEEKDAY_MONDAY("Monday"),
+	WEEKDAY_TUESDAY("Tuesday"),
+	WEEKDAY_WEDNESDAY("Wednesday"),
+	WEEKDAY_THURSDAY("Thursday"),
+	WEEKDAY_FRIDAY("Friday"),
+	WEEKDAY_SATURDAY("Saturday"),
+	WEEKDAY_SUNDAY("Sunday"),
 
+	LOCATION("Location");
 
 	String name;
 
@@ -52,23 +52,6 @@ public enum ImageStaticTags {
 			return WEATHER_HI_CLOUD;
 		}
 		return null;
-	}
-
-	public static ImageStaticTags getTime() {
-		int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-
-		if (hour < 5) {
-			return TIME_NIGHT;
-		} else if (hour < 10) {
-			return TIME_MORNING;
-		} else if (hour < 19) {
-			return TIME_MIDDAY;
-		} else if (hour < 22) {
-			return TIME_EVENING;
-		} else {
-			return TIME_NIGHT;
-		}
-
 	}
 
 	public static ImageStaticTags getWeekday() {

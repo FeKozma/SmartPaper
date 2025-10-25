@@ -15,7 +15,7 @@ public enum ImageCategories {
 
 	WEATHER(0, "Weather", R.color.weather, true, new WeatherCondition(), List.of(ImageStaticTags.WEATHER_CLEAR, ImageStaticTags.WEATHER_LO_CLOUD, ImageStaticTags.WEATHER_HI_CLOUD, ImageStaticTags.WEATHER_FOGGY, ImageStaticTags.WEATHER_SNOW, ImageStaticTags.WEATHER_RAIN, ImageStaticTags.WEATHER_DRIZZLE, ImageStaticTags.WEATHER_THUNDERSTORM)),
 	LOCATION(1, "Nearby", R.color.location, true, new LocationCondition(), List.of()),
-	TIME(2, "Time", R.color.time, new TimeCondition(), List.of(ImageStaticTags.TIME_MORNING, ImageStaticTags.TIME_MIDDAY, ImageStaticTags.TIME_EVENING, ImageStaticTags.TIME_NIGHT)),
+	TIME(2, "Time", R.color.time, new TimeCondition(), List.of()),
 	WEEKDAY(3, "Weekday", R.color.weekday, new WeekdayCondition(), List.of(ImageStaticTags.WEEKDAY_MONDAY, ImageStaticTags.WEEKDAY_TUESDAY, ImageStaticTags.WEEKDAY_WEDNESDAY, ImageStaticTags.WEEKDAY_THURSDAY, ImageStaticTags.WEEKDAY_FRIDAY, ImageStaticTags.WEEKDAY_SATURDAY, ImageStaticTags.WEEKDAY_SUNDAY));
 
 	private final int startingPos;
@@ -74,6 +74,51 @@ public enum ImageCategories {
 		}).collect(Collectors.toList());
 	}
 
+	/**
+	 * Get common tag strings (including user-defined tags) for the given images
+	 * Returns internal tag names
+	 */
+	public static List<String> getCommonTagStrings(ImageCategories category, DBImage[] images) {
+		if (images == null || images.length == 0) {
+			return new ArrayList<>();
+		}
+		
+		List<String> allTags = category.getTagsInternalName();
+		
+		return allTags.stream().filter(tag -> {
+			long count = Arrays.stream(images)
+				.filter(image -> ImageCategories.hasTag(tag, image))
+				.count();
+			return count == images.length;
+		}).collect(Collectors.toList());
+	}
+	
+	/**
+	 * Get the visible/display name for a tag
+	 * For static tags, returns the visible name from ImageStaticTags
+	 * For TIME category user-defined tags, looks up the name from DBTimes
+	 */
+	public static String getTagDisplayName(ImageCategories category, String tagInternalName) {
+		// Try to parse as static tag first
+		try {
+			ImageStaticTags staticTag = ImageStaticTags.valueOf(tagInternalName);
+			return staticTag.getVissibleName();
+		} catch (IllegalArgumentException e) {
+			// Not a static tag, check if it's a user-defined tag
+			if (category == TIME) {
+				// Look up in DBTimes
+				List<com.fekozma.wallpaperchanger.models.TimeLabel> userTimeLabels = DBTimes.db.getAllTimeLabels();
+				for (com.fekozma.wallpaperchanger.models.TimeLabel label : userTimeLabels) {
+					if (label.getId().equals(tagInternalName)) {
+						return label.getName();
+					}
+				}
+			}
+			// Fallback to the internal name
+			return tagInternalName;
+		}
+	}
+
 	public static boolean hasTag(ImageStaticTags tag, DBImage image) {
 		return List.of(image.tags).contains(tag.getInternalName());
 	}
@@ -87,7 +132,18 @@ public enum ImageCategories {
 		if (conditionWTag != null) {
 			return conditionWTag.getTags(Arrays.asList(image));
 		} else {
-			return tags.stream().map(ImageStaticTags::getInternalName).collect(Collectors.toList());
+			List<String> tagList = tags.stream().map(ImageStaticTags::getInternalName).collect(Collectors.toList());
+			
+			// For TIME category, add user-defined tags from DBTimes
+			if (this == TIME) {
+				tagList = new ArrayList<>(tagList);
+				List<com.fekozma.wallpaperchanger.models.TimeLabel> userTimeLabels = DBTimes.db.getAllTimeLabels();
+				for (com.fekozma.wallpaperchanger.models.TimeLabel label : userTimeLabels) {
+					tagList.add(label.getId());
+				}
+			}
+			
+			return tagList;
 		}
 	}
 
@@ -104,11 +160,33 @@ public enum ImageCategories {
 	}
 
 	public List<String> getTagsInternalName() {
-		return tags.stream().map(ImageStaticTags::getInternalName).collect(Collectors.toList());
+		List<String> tagList = tags.stream().map(ImageStaticTags::getInternalName).collect(Collectors.toList());
+		
+		// For TIME category, add user-defined tags from DBTimes
+		if (this == TIME) {
+			tagList = new ArrayList<>(tagList);
+			List<com.fekozma.wallpaperchanger.models.TimeLabel> userTimeLabels = DBTimes.db.getAllTimeLabels();
+			for (com.fekozma.wallpaperchanger.models.TimeLabel label : userTimeLabels) {
+				tagList.add(label.getId());
+			}
+		}
+		
+		return tagList;
 	}
 
 	public List<String> getTagsPresentationName() {
-		return tags.stream().map(ImageStaticTags::getVissibleName).collect(Collectors.toList());
+		List<String> tagList = tags.stream().map(ImageStaticTags::getVissibleName).collect(Collectors.toList());
+		
+		// For TIME category, add user-defined tags from DBTimes
+		if (this == TIME) {
+			tagList = new ArrayList<>(tagList);
+			List<com.fekozma.wallpaperchanger.models.TimeLabel> userTimeLabels = DBTimes.db.getAllTimeLabels();
+			for (com.fekozma.wallpaperchanger.models.TimeLabel label : userTimeLabels) {
+				tagList.add(label.getName());
+			}
+		}
+		
+		return tagList;
 	}
 
 	public boolean isActive() {

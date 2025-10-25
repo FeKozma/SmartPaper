@@ -39,6 +39,10 @@ public class DBManager extends SQLiteOpenHelper {
 			// Upgrade from version 2 to 3
 			createTable(db, TABLES.TIMES);
 			createTable(db, TABLES.SYSTEM_SETTINGS);
+			
+			// Initialize default time labels after creating the TIMES table
+			// Pass the existing db connection to avoid database locking
+			DBTimes.db.initializeDefaultTimeLabels(db);
 		}
 	}
 
@@ -92,6 +96,9 @@ public class DBManager extends SQLiteOpenHelper {
 				
 				// Update the stored version
 				DBSystemSettings.db.setSystemSetting(DB_VERSION_KEY, DATABASE_VERSION);
+			} else {
+				// Database is up to date, but ensure default time labels exist
+				DBTimes.db.initializeDefaultTimeLabels();
 			}
 		}
 		

@@ -159,57 +159,9 @@ public class SettingsFragment extends Fragment {
 	}
 
 	private List<TimeLabel> loadTimeLabels() {
-		// Try loading from database first
-		List<TimeLabel> labels = DBTimes.db.getAllTimeLabels();
-		
-		if (labels.isEmpty()) {
-			// No data in database, check SharedPreferences for migration
-			String savedLabels = SharedPreferencesUtil.getString(SharedPreferencesUtil.KEYS.TIME_LABELS);
-			
-			if (savedLabels != null && !savedLabels.isEmpty()) {
-				// Migrate from SharedPreferences
-				String[] labelStrings = savedLabels.split(";");
-				for (String labelString : labelStrings) {
-					TimeLabel label = TimeLabel.fromStorageString(labelString);
-					if (label != null) {
-						labels.add(label);
-					}
-				}
-				
-				// Save to database and clear SharedPreferences
-				if (!labels.isEmpty()) {
-					DBTimes.db.saveAllTimeLabels(labels);
-					SharedPreferencesUtil.setString(SharedPreferencesUtil.KEYS.TIME_LABELS, "");
-					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Migrated time labels from SharedPreferences to database");
-				}
-			} else {
-				// No data anywhere, create defaults
-				// Check if old morning values exist and migrate them
-				int morningStart = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.MORNING_START);
-				int morningStartMinute = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.MORNING_START_MINUTE);
-				int morningEnd = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.MORNING_END);
-				int morningEndMinute = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.MORNING_END_MINUTE);
-				
-				// If values exist, use them; otherwise use defaults
-				if (morningStart == 0 && morningStartMinute == 0 && morningEnd == 0 && morningEndMinute == 0) {
-					// Use default values
-					labels.add(new TimeLabel("Morning", 6, 0, 12, 0, true, "morning"));
-				} else {
-					// Migrate old values
-					labels.add(new TimeLabel("Morning", morningStart, morningStartMinute, morningEnd, morningEndMinute, true, "morning"));
-				}
-				
-				labels.add(new TimeLabel("Midday", 12, 0, 17, 0, true, "midday"));
-				labels.add(new TimeLabel("Evening", 17, 0, 21, 0, true, "evening"));
-				labels.add(new TimeLabel("Night", 21, 0, 6, 0, true, "night"));
-				
-				// Save defaults to database
-				DBTimes.db.saveAllTimeLabels(labels);
-				DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Created default time labels in database");
-			}
-		}
-		
-		return labels;
+		// Load time labels from database
+		// Default labels are initialized during database creation/upgrade
+		return DBTimes.db.getAllTimeLabels();
 	}
 
 	private void saveTimeLabels() {

@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.fekozma.wallpaperchanger.models.TimeLabel;
+import com.fekozma.wallpaperchanger.util.SharedPreferencesUtil;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.ArrayList;
@@ -209,6 +210,151 @@ public class DBTimes extends DBManager {
 			}
 			
 			return isUnique;
+		}
+	}
+	
+	/**
+	 * Initialize default time labels if they don't exist in the database.
+	 * This method should be called during database creation or upgrade.
+	 * It also handles migration from SharedPreferences if needed.
+	 */
+	public void initializeDefaultTimeLabels() {
+		synchronized (DBManager.DATABASE_NAME) {
+			// Check if time labels already exist
+			List<TimeLabel> existingLabels = getAllTimeLabels();
+			
+			if (!existingLabels.isEmpty()) {
+				// Time labels already exist, no initialization needed
+				return;
+			}
+			
+			// Create and save default labels
+			createAndSaveDefaultLabels();
+		}
+	}
+	
+	/**
+	 * Initialize default time labels using an existing database connection.
+	 * This version is called during onUpgrade to avoid database locking issues.
+	 * @param db The already-open database connection
+	 */
+	public void initializeDefaultTimeLabels(SQLiteDatabase db) {
+		synchronized (DBManager.DATABASE_NAME) {
+			// Check if time labels already exist using the provided connection
+			Cursor cursor = db.query(
+				TABLES.TIMES.name,
+				new String[]{COL_ID},
+				null,
+				null,
+				null,
+				null,
+				null,
+				"1"
+			);
+			
+			boolean hasData = cursor != null && cursor.moveToFirst();
+			if (cursor != null) {
+				cursor.close();
+			}
+			
+			if (hasData) {
+				// Time labels already exist, no initialization needed
+				return;
+			}
+			
+			// Create default labels and save using the provided connection
+			List<TimeLabel> labels = createDefaultLabels();
+			saveAllTimeLabels(db, labels);
+		}
+	}
+	
+	/**
+	 * Create the list of default time labels with migration from SharedPreferences if available
+	 */
+	private List<TimeLabel> createDefaultLabels() {
+		List<TimeLabel> labels = new ArrayList<>();
+		
+		// Check SharedPreferences for migration
+		String savedLabels = SharedPreferencesUtil.getString(SharedPreferencesUtil.KEYS.TIME_LABELS);
+		
+		if (savedLabels != null && !savedLabels.isEmpty()) {
+			// Migrate from SharedPreferences
+			String[] labelStrings = savedLabels.split(";");
+			for (String labelString : labelStrings) {
+				TimeLabel label = TimeLabel.fromStorageString(labelString);
+				if (label != null) {
+					labels.add(label);
+				}
+			}
+			
+			// Clear SharedPreferences after migration
+			if (!labels.isEmpty()) {
+				SharedPreferencesUtil.setString(SharedPreferencesUtil.KEYS.TIME_LABELS, "");
+				DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Migrated time labels from SharedPreferences to database");
+			}
+		} else {
+			// No data in SharedPreferences, create defaults
+			// Check if old morning values exist and migrate them
+			int morningStart = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.MORNING_START);
+			int morningStartMinute = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.MORNING_START_MINUTE);
+			int morningEnd = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.MORNING_END);
+			int morningEndMinute = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.MORNING_END_MINUTE);
+			
+			// If values exist, use them; otherwise use defaults
+			if (morningStart == 0 && morningStartMinute == 0 && morningEnd == 0 && morningEndMinute == 0) {
+				// Use default values
+				labels.add(new TimeLabel("Morning", 6, 0, 12, 0, true, "morning"));
+			} else {
+				// Migrate old values
+				labels.add(new TimeLabel("Morning", morningStart, morningStartMinute, morningEnd, morningEndMinute, true, "morning"));
+			}
+			
+			labels.add(new TimeLabel("Midday", 12, 0, 17, 0, true, "midday"));
+			labels.add(new TimeLabel("Evening", 17, 0, 21, 0, true, "evening"));
+			labels.add(new TimeLabel("Night", 21, 0, 6, 0, true, "night"));
+			
+		}
+		
+		return labels;
+	}
+	
+	/**
+	 * Create and save default labels (convenience method)
+	 */
+	private void createAndSaveDefaultLabels() {
+		List<TimeLabel> labels = createDefaultLabels();
+		saveAllTimeLabels(labels);
+	}
+	
+	/**
+	 * Save multiple time labels using an existing database connection
+	 */
+	private void saveAllTimeLabels(SQLiteDatabase db, List<TimeLabel> timeLabels) {
+		db.beginTransaction();
+		
+		try {
+			// Clear existing data
+			db.delete(TABLES.TIMES.name, null, null);
+			
+			// Insert all time labels
+			for (TimeLabel timeLabel : timeLabels) {
+				ContentValues values = new ContentValues();
+				values.put(COL_ID, timeLabel.getId());
+				values.put(COL_NAME, timeLabel.getName());
+				values.put(COL_START_HOUR, timeLabel.getStartHour());
+				values.put(COL_START_MINUTE, timeLabel.getStartMinute());
+				values.put(COL_END_HOUR, timeLabel.getEndHour());
+				values.put(COL_END_MINUTE, timeLabel.getEndMinute());
+				values.put(COL_IS_PERMANENT, timeLabel.isPermanent() ? 1 : 0);
+				
+				db.insert(TABLES.TIMES.name, null, values);
+			}
+			
+			db.setTransactionSuccessful();
+		} catch (Exception e) {
+			FirebaseCrashlytics.getInstance().recordException(e);
+		} finally {
+			db.endTransaction();
 		}
 	}
 }

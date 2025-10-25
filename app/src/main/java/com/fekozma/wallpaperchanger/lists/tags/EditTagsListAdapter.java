@@ -62,14 +62,8 @@ public class EditTagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 		}
 
 		TagItem tag = new TagItem();
-		try {
-			ImageStaticTags tmpTag = ImageStaticTags.valueOf(tags.get(bindingAdapterPos));
-			tag.internalName = tmpTag.getInternalName();
-			tag.visibleName = tmpTag.getVissibleName();
-		} catch (IllegalArgumentException e) {
-			tag.internalName = tags.get(bindingAdapterPos);
-			tag.visibleName = tags.get(bindingAdapterPos);
-		}
+		tag.internalName = tags.get(bindingAdapterPos);
+		tag.visibleName = ImageCategories.getTagDisplayName(category, tags.get(bindingAdapterPos));
 
 		long selections = Arrays.stream(images)
 			.filter(image -> ImageCategories.hasTag(tags.get(bindingAdapterPos), image))

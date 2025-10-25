@@ -136,8 +136,10 @@ public class TagsListAdapter extends RecyclerView.Adapter<TagsListHolder> {
 					this.tags.add(new TagItem(tag, category.getColor()));
 				});
 			} else {
-				ImageCategories.getCommonSelections(category, this.images).forEach(tag -> {
-					this.tags.add(new TagItem(tag.getVissibleName(), category.getColor()));
+				// Use getCommonTagStrings to include user-defined tags
+				ImageCategories.getCommonTagStrings(category, this.images).forEach(tagInternalName -> {
+					String displayName = ImageCategories.getTagDisplayName(category, tagInternalName);
+					this.tags.add(new TagItem(displayName, category.getColor()));
 				});
 			}
 		}
