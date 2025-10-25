@@ -93,7 +93,10 @@ public class SharedPreferencesUtil {
 		CATEGORY_POSITION("category_position", -1),
 		UPDATE_FREQUENCY("update_frequency", "1h"),
 		MORNING_START("morning_start", 6),
-		MORNING_END("morning_end", 12);
+		MORNING_START_MINUTE("morning_start_minute", 0),
+		MORNING_END("morning_end", 12),
+		MORNING_END_MINUTE("morning_end_minute", 0),
+		TIME_LABELS("time_labels", null);
 
 		String key;
 		Object value;

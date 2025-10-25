@@ -109,7 +109,11 @@ public class RandomImageJob extends ListenableWorker {
 					File randomImage = getRandomFile(images);
 					WallpaperUtil.setWallpaperFromFile(randomImage);
 					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Setting background image work completed");
-					completer.set(Result.success(new Data(Map.of(RES_IMAGE, randomImage.getName()))));
+					if (randomImage != null) {
+						completer.set(Result.success(new Data(Map.of(RES_IMAGE, randomImage.getName()))));
+					} else {
+						DBLog.db.addLog(DBLog.LEVELS.ERROR, "images null");
+					}
 				}
 			});
 		}

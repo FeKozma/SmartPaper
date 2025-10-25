@@ -103,8 +103,12 @@ public enum ImageCategories {
 		return (condition == null) ? conditionWTag : condition;
 	}
 
-	public List<String> getTags() {
+	public List<String> getTagsInternalName() {
 		return tags.stream().map(ImageStaticTags::getInternalName).collect(Collectors.toList());
+	}
+
+	public List<String> getTagsPresentationName() {
+		return tags.stream().map(ImageStaticTags::getVissibleName).collect(Collectors.toList());
 	}
 
 	public boolean isActive() {

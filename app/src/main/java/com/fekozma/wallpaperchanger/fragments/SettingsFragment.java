@@ -20,10 +20,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.fekozma.wallpaperchanger.R;
 import com.fekozma.wallpaperchanger.WallpaperApplication;
 import com.fekozma.wallpaperchanger.database.DBLog;
+import com.fekozma.wallpaperchanger.database.DBTimes;
 import com.fekozma.wallpaperchanger.database.ImageCategories;
 import com.fekozma.wallpaperchanger.databinding.SettingsBinding;
+import com.fekozma.wallpaperchanger.dialogs.AddTimeLabelDialog;
 import com.fekozma.wallpaperchanger.dialogs.TimeRangePickerDialog;
 import com.fekozma.wallpaperchanger.lists.job_category_order.CategoryAdapter;
+import com.fekozma.wallpaperchanger.lists.time_labels.TimeLabelAdapter;
+import com.fekozma.wallpaperchanger.models.TimeLabel;
 import com.fekozma.wallpaperchanger.util.FirebaseLogUtil;
 import com.fekozma.wallpaperchanger.util.GestureUtil;
 import com.fekozma.wallpaperchanger.util.LocationUtil;
@@ -31,10 +35,14 @@ import com.fekozma.wallpaperchanger.util.SharedPreferencesUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 public class SettingsFragment extends Fragment {
 
 	private SettingsBinding binding;
+	private TimeLabelAdapter timeLabelAdapter;
+	private List<TimeLabel> timeLabels;
 
 	@Override
 	public View onCreateView(
@@ -60,47 +68,187 @@ public class SettingsFragment extends Fragment {
 	}
 
 	private void setTimeSettingS() {
-		// Load saved time ranges or use defaults
-		int morningStart = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.MORNING_START);
-		int morningEnd = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.MORNING_END);
+		// Load time labels from SharedPreferences or create defaults
+		timeLabels = loadTimeLabels();
+		
+		// Setup RecyclerView
+		timeLabelAdapter = new TimeLabelAdapter(timeLabels, new TimeLabelAdapter.OnTimeLabelClickListener() {
+			@Override
+			public void onEditClick(TimeLabel timeLabel, int position) {
+				if (timeLabel.isPermanent()) {
+					// For permanent labels, just edit time range
+					showTimeRangePickerDialog(
+						"Edit " + timeLabel.getName(),
+						timeLabel.getStartHour(),
+						timeLabel.getStartMinute(),
+						timeLabel.getEndHour(),
+						timeLabel.getEndMinute(),
+						(startHour, startMinute, endHour, endMinute) -> {
+							timeLabel.setStartHour(startHour);
+							timeLabel.setStartMinute(startMinute);
+							timeLabel.setEndHour(endHour);
+							timeLabel.setEndMinute(endMinute);
+							timeLabelAdapter.updateItem(position, timeLabel);
+							saveTimeLabels();
+							DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Updated time label: " + timeLabel.getName());
+						}
+					);
+				} else {
+					// For custom labels, allow editing name and time range
+					AddTimeLabelDialog.show(getContext(), timeLabel, (name, startHour, startMinute, endHour, endMinute) -> {
+						// Check for duplicate names (excluding current label)
+						if (isNameDuplicate(name, timeLabel.getId())) {
+							showDuplicateNameError(name);
+							return;
+						}
+						
+						timeLabel.setName(name);
+						timeLabel.setStartHour(startHour);
+						timeLabel.setStartMinute(startMinute);
+						timeLabel.setEndHour(endHour);
+						timeLabel.setEndMinute(endMinute);
+						timeLabelAdapter.updateItem(position, timeLabel);
+						saveTimeLabels();
+						DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Updated custom time label: " + name);
+					});
+				}
+			}
 
-		// Update display
-		updateMorningTimeDisplay(morningStart, morningEnd);
-
-		// Set click listener for morning_from
-		binding.morningFrom.setOnClickListener(view -> {
-			int currentStart = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.MORNING_START);
-			int currentEnd = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.MORNING_END);
-			showTimeRangePickerDialog("Select Morning Time Range", currentStart, currentEnd,
-				(startHour, endHour) -> {
-					SharedPreferencesUtil.setInt(SharedPreferencesUtil.KEYS.MORNING_START, startHour);
-					SharedPreferencesUtil.setInt(SharedPreferencesUtil.KEYS.MORNING_END, endHour);
-					updateMorningTimeDisplay(startHour, endHour);
-					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Morning time range: " + startHour + ":00 - " + endHour + ":00");
-				});
+			@Override
+			public void onDeleteClick(TimeLabel timeLabel, int position) {
+				if (!timeLabel.isPermanent()) {
+					AlertDialog deleteDialog = new AlertDialog.Builder(getContext())
+						.setTitle("Delete Time Label")
+						.setMessage("Are you sure you want to delete '" + timeLabel.getName() + "'?")
+						.setPositiveButton("Delete", (d, which) -> {
+							timeLabelAdapter.removeItem(position);
+							saveTimeLabels();
+							DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Deleted time label: " + timeLabel.getName());
+						})
+						.setNegativeButton("Cancel", null)
+						.create();
+					deleteDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_background);
+					deleteDialog.show();
+				}
+			}
 		});
 
-		// Set click listener for morning_to
-		binding.morningTo.setOnClickListener(view -> {
-			int currentStart = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.MORNING_START);
-			int currentEnd = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.MORNING_END);
-			showTimeRangePickerDialog("Select Morning Time Range", currentStart, currentEnd,
-				(startHour, endHour) -> {
-					SharedPreferencesUtil.setInt(SharedPreferencesUtil.KEYS.MORNING_START, startHour);
-					SharedPreferencesUtil.setInt(SharedPreferencesUtil.KEYS.MORNING_END, endHour);
-					updateMorningTimeDisplay(startHour, endHour);
-					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Morning time range: " + startHour + ":00 - " + endHour + ":00");
-				});
+		binding.timeLabelsRecycler.setLayoutManager(new LinearLayoutManager(getContext()) {
+			@Override
+			public boolean canScrollVertically() {
+				return false;
+			}
+		});
+		binding.timeLabelsRecycler.setAdapter(timeLabelAdapter);
+
+		// Add button click listener
+		binding.addTimeLabel.setOnClickListener(v -> {
+			AddTimeLabelDialog.show(getContext(), null, (name, startHour, startMinute, endHour, endMinute) -> {
+				// Check for duplicate names
+				if (isNameDuplicate(name, null)) {
+					showDuplicateNameError(name);
+					return;
+				}
+				
+				TimeLabel newLabel = new TimeLabel(name, startHour, startMinute, endHour, endMinute, false, UUID.randomUUID().toString());
+				timeLabelAdapter.addItem(newLabel);
+				saveTimeLabels();
+				DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Added new time label: " + name);
+			});
 		});
 	}
 
-	private void updateMorningTimeDisplay(int startHour, int endHour) {
-		binding.morningFrom.setText(String.format("%02d:00", startHour));
-		binding.morningTo.setText(String.format("%02d:00", endHour));
+	private List<TimeLabel> loadTimeLabels() {
+		// Try loading from database first
+		List<TimeLabel> labels = DBTimes.db.getAllTimeLabels();
+		
+		if (labels.isEmpty()) {
+			// No data in database, check SharedPreferences for migration
+			String savedLabels = SharedPreferencesUtil.getString(SharedPreferencesUtil.KEYS.TIME_LABELS);
+			
+			if (savedLabels != null && !savedLabels.isEmpty()) {
+				// Migrate from SharedPreferences
+				String[] labelStrings = savedLabels.split(";");
+				for (String labelString : labelStrings) {
+					TimeLabel label = TimeLabel.fromStorageString(labelString);
+					if (label != null) {
+						labels.add(label);
+					}
+				}
+				
+				// Save to database and clear SharedPreferences
+				if (!labels.isEmpty()) {
+					DBTimes.db.saveAllTimeLabels(labels);
+					SharedPreferencesUtil.setString(SharedPreferencesUtil.KEYS.TIME_LABELS, "");
+					DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Migrated time labels from SharedPreferences to database");
+				}
+			} else {
+				// No data anywhere, create defaults
+				// Check if old morning values exist and migrate them
+				int morningStart = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.MORNING_START);
+				int morningStartMinute = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.MORNING_START_MINUTE);
+				int morningEnd = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.MORNING_END);
+				int morningEndMinute = SharedPreferencesUtil.getInt(SharedPreferencesUtil.KEYS.MORNING_END_MINUTE);
+				
+				// If values exist, use them; otherwise use defaults
+				if (morningStart == 0 && morningStartMinute == 0 && morningEnd == 0 && morningEndMinute == 0) {
+					// Use default values
+					labels.add(new TimeLabel("Morning", 6, 0, 12, 0, true, "morning"));
+				} else {
+					// Migrate old values
+					labels.add(new TimeLabel("Morning", morningStart, morningStartMinute, morningEnd, morningEndMinute, true, "morning"));
+				}
+				
+				labels.add(new TimeLabel("Midday", 12, 0, 17, 0, true, "midday"));
+				labels.add(new TimeLabel("Evening", 17, 0, 21, 0, true, "evening"));
+				labels.add(new TimeLabel("Night", 21, 0, 6, 0, true, "night"));
+				
+				// Save defaults to database
+				DBTimes.db.saveAllTimeLabels(labels);
+				DBLog.db.addLog(DBLog.LEVELS.DEBUG, "Created default time labels in database");
+			}
+		}
+		
+		return labels;
 	}
 
-	private void showTimeRangePickerDialog(String title, int startHour, int endHour, TimeRangePickerDialog.OnTimeRangeSelectedListener listener) {
-		TimeRangePickerDialog dialog = new TimeRangePickerDialog(getContext(), title, startHour, endHour);
+	private void saveTimeLabels() {
+		DBTimes.db.saveAllTimeLabels(timeLabels);
+	}
+	
+	/**
+	 * Check if a name already exists in the current time labels list (case-insensitive)
+	 * @param name The name to check
+	 * @param excludeId ID to exclude from check (for edits), can be null
+	 * @return true if duplicate found, false otherwise
+	 */
+	private boolean isNameDuplicate(String name, String excludeId) {
+		for (TimeLabel label : timeLabels) {
+			if (excludeId != null && label.getId().equals(excludeId)) {
+				continue; // Skip the current label being edited
+			}
+			if (label.getName().equalsIgnoreCase(name)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Show an error dialog when a duplicate name is detected
+	 */
+	private void showDuplicateNameError(String name) {
+		AlertDialog errorDialog = new AlertDialog.Builder(getContext())
+			.setTitle("Duplicate Name")
+			.setMessage("A time label with the name '" + name + "' already exists. Please choose a different name.")
+			.setPositiveButton(android.R.string.ok, null)
+			.create();
+		errorDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_background);
+		errorDialog.show();
+	}
+
+	private void showTimeRangePickerDialog(String title, int startHour, int startMinute, int endHour, int endMinute, TimeRangePickerDialog.OnTimeRangeSelectedListener listener) {
+		TimeRangePickerDialog dialog = new TimeRangePickerDialog(getContext(), title, startHour, startMinute, endHour, endMinute);
 		dialog.setOnTimeRangeSelectedListener(listener);
 		dialog.show();
 	}

@@ -9,7 +9,6 @@ import com.fekozma.wallpaperchanger.database.DBImage;
 import com.fekozma.wallpaperchanger.database.DBLog;
 import com.fekozma.wallpaperchanger.database.ImageCategories;
 import com.fekozma.wallpaperchanger.database.ImageStaticTags;
-import com.fekozma.wallpaperchanger.util.LocationUtil;
 import com.fekozma.wallpaperchanger.util.SharedPreferencesUtil;
 
 import java.util.Arrays;
@@ -82,7 +81,7 @@ public class WeatherCondition extends ConditionalImages {
 		String finalWeather = weather;
 		List<DBImage> filteredRes = images.stream().filter(image -> Arrays.stream(image.tags).toList().contains(finalWeather)).collect(Collectors.toList());
 		if (filteredRes.isEmpty()) {
-			List<DBImage> noWeatherTags = images.stream().filter(image -> noCommonElements(List.of(image.tags), ImageCategories.WEATHER.getTags())).collect(Collectors.toList());
+			List<DBImage> noWeatherTags = images.stream().filter(image -> noCommonElements(List.of(image.tags), ImageCategories.WEATHER.getTagsInternalName())).collect(Collectors.toList());
 			if (noWeatherTags.isEmpty()) {
 				return images;
 			}

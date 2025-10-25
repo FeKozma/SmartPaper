@@ -19,7 +19,7 @@ public class WeekdayCondition extends ConditionalImages {
 
 		if (filteredImages.isEmpty()) {
 			List<DBImage> noWeekdayTags = images.stream()
-				.filter(image -> noCommonElements(List.of(image.tags), ImageCategories.WEEKDAY.getTags()))
+				.filter(image -> noCommonElements(List.of(image.tags), ImageCategories.WEEKDAY.getTagsInternalName()))
 				.collect(Collectors.toList());
 
 			if (noWeekdayTags.isEmpty()) {

@@ -22,20 +22,24 @@ public class TimeRangePickerDialog extends Dialog {
     private Button btnCancel;
 
     private int startHour;
+    private int startMinute;
     private int endHour;
+    private int endMinute;
     private String title;
 
     private OnTimeRangeSelectedListener listener;
 
     public interface OnTimeRangeSelectedListener {
-        void onTimeRangeSelected(int startHour, int endHour);
+        void onTimeRangeSelected(int startHour, int startMinute, int endHour, int endMinute);
     }
 
-    public TimeRangePickerDialog(@NonNull Context context, String title, int startHour, int endHour) {
+    public TimeRangePickerDialog(@NonNull Context context, String title, int startHour, int startMinute, int endHour, int endMinute) {
         super(context);
         this.title = title;
         this.startHour = startHour;
+        this.startMinute = startMinute;
         this.endHour = endHour;
+        this.endMinute = endMinute;
     }
 
     @Override
@@ -59,15 +63,15 @@ public class TimeRangePickerDialog extends Dialog {
         dialogTitle.setText(title);
 
         // Set initial values
-        circularTimeRangeView.setStartHour(startHour);
-        circularTimeRangeView.setEndHour(endHour);
-        updateTimeDisplay(startHour, endHour);
+        circularTimeRangeView.setStartTime(startHour, startMinute);
+        circularTimeRangeView.setEndTime(endHour, endMinute);
+        updateTimeDisplay(startHour, startMinute, endHour, endMinute);
 
         // Set listener for time range changes
         circularTimeRangeView.setOnTimeRangeChangeListener(new CircularTimeRangeView.OnTimeRangeChangeListener() {
             @Override
-            public void onTimeRangeChanged(int startHour, int endHour) {
-                updateTimeDisplay(startHour, endHour);
+            public void onTimeRangeChanged(int startHour, int startMinute, int endHour, int endMinute) {
+                updateTimeDisplay(startHour, startMinute, endHour, endMinute);
             }
         });
 
@@ -77,7 +81,9 @@ public class TimeRangePickerDialog extends Dialog {
                 if (listener != null) {
                     listener.onTimeRangeSelected(
                         circularTimeRangeView.getStartHour(),
-                        circularTimeRangeView.getEndHour()
+                        circularTimeRangeView.getStartMinute(),
+                        circularTimeRangeView.getEndHour(),
+                        circularTimeRangeView.getEndMinute()
                     );
                 }
                 dismiss();
@@ -92,8 +98,8 @@ public class TimeRangePickerDialog extends Dialog {
         });
     }
 
-    private void updateTimeDisplay(int startHour, int endHour) {
-        String display = String.format("%02d:00 - %02d:00", startHour, endHour);
+    private void updateTimeDisplay(int startHour, int startMinute, int endHour, int endMinute) {
+        String display = String.format("%02d:%02d - %02d:%02d", startHour, startMinute, endHour, endMinute);
         timeRangeDisplay.setText(display);
     }
 

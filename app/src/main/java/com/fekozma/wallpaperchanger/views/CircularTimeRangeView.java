@@ -24,7 +24,9 @@ public class CircularTimeRangeView extends View {
     private float handleRadius = 30f;
 
     private int startHour = 0;
+    private int startMinute = 0;
     private int endHour = 0;
+    private int endMinute = 0;
 
     private boolean isDraggingStart = false;
     private boolean isDraggingEnd = false;
@@ -32,7 +34,7 @@ public class CircularTimeRangeView extends View {
     private OnTimeRangeChangeListener listener;
 
     public interface OnTimeRangeChangeListener {
-        void onTimeRangeChanged(int startHour, int endHour);
+        void onTimeRangeChanged(int startHour, int startMinute, int endHour, int endMinute);
     }
 
     public CircularTimeRangeView(Context context) {
@@ -88,12 +90,15 @@ public class CircularTimeRangeView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        // Draw hour markers
-        for (int i = 0; i < 24; i++) {
-            float angle = (i * 15f - 90f);
+        // Draw hour markers (including half-hours)
+        for (int i = 0; i < 48; i++) {
+            float angle = (i * 7.5f - 90f);
             float angleRad = (float) Math.toRadians(angle);
-            float innerRadius = radius - 20f;
-            float outerRadius = radius + 20f;
+            
+            // Different lengths for full hours vs half hours
+            boolean isFullHour = (i % 2 == 0);
+            float innerRadius = isFullHour ? radius - 25f : radius - 15f;
+            float outerRadius = isFullHour ? radius + 25f : radius + 15f;
 
             float startX = centerX + innerRadius * (float) Math.cos(angleRad);
             float startY = centerY + innerRadius * (float) Math.sin(angleRad);
@@ -102,12 +107,12 @@ public class CircularTimeRangeView extends View {
 
             canvas.drawLine(startX, startY, endX, endY, linePaint);
 
-            // Draw hour labels
-            if (i % 3 == 0) {
+            // Draw hour labels (only for full hours at 0, 3, 6, 9, 12, 15, 18, 21)
+            if (isFullHour && (i / 2) % 3 == 0) {
                 float textRadius = radius + 60f;
                 float textX = centerX + textRadius * (float) Math.cos(angleRad);
                 float textY = centerY + textRadius * (float) Math.sin(angleRad);
-                canvas.drawText(String.valueOf(i), textX, textY + 15f, textPaint);
+                canvas.drawText(String.valueOf(i / 2), textX, textY + 15f, textPaint);
             }
         }
 
@@ -116,14 +121,17 @@ public class CircularTimeRangeView extends View {
         canvas.drawCircle(centerX, centerY, radius, circlePaint);
 
         // Draw arc for selected time range
-        float startAngle = startHour * 15f - 90f;
+        float startPosition = startHour * 2 + (startMinute == 30 ? 1 : 0);
+        float endPosition = endHour * 2 + (endMinute == 30 ? 1 : 0);
+        
+        float startAngle = startPosition * 7.5f - 90f;
         float sweepAngle;
 
-        if (endHour >= startHour) {
-            sweepAngle = (endHour - startHour) * 15f;
+        if (endPosition >= startPosition) {
+            sweepAngle = (endPosition - startPosition) * 7.5f;
         } else {
             // Wrapping around midnight
-            sweepAngle = (24 - startHour + endHour) * 15f;
+            sweepAngle = (48 - startPosition + endPosition) * 7.5f;
         }
 
         if (sweepAngle > 0) {
@@ -138,7 +146,7 @@ public class CircularTimeRangeView extends View {
         canvas.drawCircle(startHandleX, startHandleY, handleRadius, handlePaint);
 
         // Draw end handle
-        float endAngle = endHour * 15f - 90f;
+        float endAngle = endPosition * 7.5f - 90f;
         float endAngleRad = (float) Math.toRadians(endAngle);
         float endHandleX = centerX + radius * (float) Math.cos(endAngleRad);
         float endHandleY = centerY + radius * (float) Math.sin(endAngleRad);
@@ -154,14 +162,16 @@ public class CircularTimeRangeView extends View {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 // Check if touching start handle
-                float startAngle = startHour * 15f - 90f;
+                float startPosition = startHour * 2 + (startMinute == 30 ? 1 : 0);
+                float startAngle = startPosition * 7.5f - 90f;
                 float startAngleRad = (float) Math.toRadians(startAngle);
                 float startHandleX = centerX + radius * (float) Math.cos(startAngleRad);
                 float startHandleY = centerY + radius * (float) Math.sin(startAngleRad);
                 float distToStart = (float) Math.sqrt(Math.pow(touchX - startHandleX, 2) + Math.pow(touchY - startHandleY, 2));
 
                 // Check if touching end handle
-                float endAngle = endHour * 15f - 90f;
+                float endPosition = endHour * 2 + (endMinute == 30 ? 1 : 0);
+                float endAngle = endPosition * 7.5f - 90f;
                 float endAngleRad = (float) Math.toRadians(endAngle);
                 float endHandleX = centerX + radius * (float) Math.cos(endAngleRad);
                 float endHandleY = centerY + radius * (float) Math.sin(endAngleRad);
@@ -183,16 +193,20 @@ public class CircularTimeRangeView extends View {
                     float angle = (float) Math.toDegrees(Math.atan2(dy, dx));
                     angle = (angle + 90f + 360f) % 360f;
 
-                    int hour = Math.round(angle / 15f) % 24;
+                    int position = Math.round(angle / 7.5f) % 48;
+                    int hour = position / 2;
+                    int minute = (position % 2) * 30;
 
                     if (isDraggingStart) {
                         startHour = hour;
+                        startMinute = minute;
                     } else {
                         endHour = hour;
+                        endMinute = minute;
                     }
 
                     if (listener != null) {
-                        listener.onTimeRangeChanged(startHour, endHour);
+                        listener.onTimeRangeChanged(startHour, startMinute, endHour, endMinute);
                     }
 
                     invalidate();
@@ -210,13 +224,15 @@ public class CircularTimeRangeView extends View {
         return super.onTouchEvent(event);
     }
 
-    public void setStartHour(int hour) {
+    public void setStartTime(int hour, int minute) {
         this.startHour = hour % 24;
+        this.startMinute = (minute >= 30) ? 30 : 0;
         invalidate();
     }
 
-    public void setEndHour(int hour) {
+    public void setEndTime(int hour, int minute) {
         this.endHour = hour % 24;
+        this.endMinute = (minute >= 30) ? 30 : 0;
         invalidate();
     }
 
@@ -224,8 +240,16 @@ public class CircularTimeRangeView extends View {
         return startHour;
     }
 
+    public int getStartMinute() {
+        return startMinute;
+    }
+
     public int getEndHour() {
         return endHour;
+    }
+
+    public int getEndMinute() {
+        return endMinute;
     }
 
     public void setOnTimeRangeChangeListener(OnTimeRangeChangeListener listener) {

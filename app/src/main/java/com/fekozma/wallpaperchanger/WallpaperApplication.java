@@ -29,7 +29,8 @@ public class WallpaperApplication extends Application {
 		AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
 
 		ContextUtil.setContext(this.getApplicationContext());
-		new DBManager();
+		DBManager dbManager = new DBManager();
+		dbManager.checkAndUpgradeIfNeeded();
 		DBLog.db.addLog(DBLog.LEVELS.DEBUG, "---- Application started ----");
 		new MainActivity();
 
