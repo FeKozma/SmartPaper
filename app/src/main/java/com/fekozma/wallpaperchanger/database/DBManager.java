@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class DBManager extends SQLiteOpenHelper {
 
 	// If you change the database schema, you must increment the database version.
-	public static final int DATABASE_VERSION = 3;
+	public static final int DATABASE_VERSION = 4;
 	public static final String DATABASE_NAME = "wallpaperchanger.db";
 	public static final String DB_VERSION_KEY = "db_version";
 	private static DBManager dbManager;
@@ -43,6 +43,10 @@ public class DBManager extends SQLiteOpenHelper {
 			// Initialize default time labels after creating the TIMES table
 			// Pass the existing db connection to avoid database locking
 			DBTimes.db.initializeDefaultTimeLabels(db);
+		}
+		if (oldVersion < 4) {
+			// Upgrade from version 3 to 4
+			createTable(db, TABLES.HOLIDAYS);
 		}
 	}
 
@@ -118,6 +122,14 @@ public class DBManager extends SQLiteOpenHelper {
 			DBTimes.COL_END_HOUR, "INTEGER",
 			DBTimes.COL_END_MINUTE, "INTEGER",
 			DBTimes.COL_IS_PERMANENT, "INTEGER"
+		)),
+		HOLIDAYS("Holidays", Map.of(
+			DBHolidays.COL_ID, "TEXT PRIMARY KEY",
+			DBHolidays.COL_NAME, "TEXT",
+			DBHolidays.COL_START_DATE, "TEXT",
+			DBHolidays.COL_END_DATE, "TEXT",
+			DBHolidays.COL_TYPE, "TEXT",
+			DBHolidays.COL_NATIONWIDE, "INTEGER"
 		));
 
 		String name;

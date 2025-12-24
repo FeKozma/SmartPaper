@@ -7,6 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class HttpClient {
 	private static final String BASE_WEATHER_URL = "https://api.openweathermap.org/data/2.5/";
 	private static final String BASE_ADDRESS_URL = "https://nominatim.openstreetmap.org/";
+	private static final String BASE_HOLIDAYS_URL = "https://openholidaysapi.org/";
 
 	private static Retrofit retrofit;
 
@@ -32,5 +33,14 @@ public class HttpClient {
 			.build();
 
 		return retrofit.create(NominatimService.class);
+	}
+
+	public static OpenHolidaysApi getHolidaysApi() {
+		Retrofit retrofit = new Retrofit.Builder()
+			.baseUrl(BASE_HOLIDAYS_URL)
+			.addConverterFactory(GsonConverterFactory.create())
+			.build();
+
+		return retrofit.create(OpenHolidaysApi.class);
 	}
 }

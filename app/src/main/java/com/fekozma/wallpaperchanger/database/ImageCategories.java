@@ -16,7 +16,8 @@ public enum ImageCategories {
 	WEATHER(0, "Weather", R.color.weather, true, new WeatherCondition(), List.of(ImageStaticTags.WEATHER_CLEAR, ImageStaticTags.WEATHER_LO_CLOUD, ImageStaticTags.WEATHER_HI_CLOUD, ImageStaticTags.WEATHER_FOGGY, ImageStaticTags.WEATHER_SNOW, ImageStaticTags.WEATHER_RAIN, ImageStaticTags.WEATHER_DRIZZLE, ImageStaticTags.WEATHER_THUNDERSTORM)),
 	LOCATION(1, "Nearby", R.color.location, true, new LocationCondition(), List.of()),
 	TIME(2, "Time", R.color.time, new TimeCondition(), List.of()),
-	WEEKDAY(3, "Weekday", R.color.weekday, new WeekdayCondition(), List.of(ImageStaticTags.WEEKDAY_MONDAY, ImageStaticTags.WEEKDAY_TUESDAY, ImageStaticTags.WEEKDAY_WEDNESDAY, ImageStaticTags.WEEKDAY_THURSDAY, ImageStaticTags.WEEKDAY_FRIDAY, ImageStaticTags.WEEKDAY_SATURDAY, ImageStaticTags.WEEKDAY_SUNDAY));
+	WEEKDAY(3, "Weekday", R.color.weekday, new WeekdayCondition(), List.of(ImageStaticTags.WEEKDAY_MONDAY, ImageStaticTags.WEEKDAY_TUESDAY, ImageStaticTags.WEEKDAY_WEDNESDAY, ImageStaticTags.WEEKDAY_THURSDAY, ImageStaticTags.WEEKDAY_FRIDAY, ImageStaticTags.WEEKDAY_SATURDAY, ImageStaticTags.WEEKDAY_SUNDAY)),
+	HOLIDAY(4, "Holiday", R.color.holiday, new HolidayCondition(), List.of());
 
 	private final int startingPos;
 	private final ConditionalImages condition;
@@ -114,6 +115,15 @@ public enum ImageCategories {
 					}
 				}
 			}
+			if (category == HOLIDAY) {
+				// Look up in DBHolidays
+				List<com.fekozma.wallpaperchanger.models.Holiday> holidays = DBHolidays.db.getAllHolidays();
+				for (com.fekozma.wallpaperchanger.models.Holiday holiday : holidays) {
+					if (holiday.getTagId().equals(tagInternalName)) {
+						return holiday.getName();
+					}
+				}
+			}
 			// Fallback to the internal name
 			return tagInternalName;
 		}
@@ -141,6 +151,17 @@ public enum ImageCategories {
 				for (com.fekozma.wallpaperchanger.models.TimeLabel label : userTimeLabels) {
 					tagList.add(label.getId());
 				}
+			}
+			
+			// For HOLIDAY category, add holiday tags from DBHolidays
+			if (this == HOLIDAY) {
+				tagList = new ArrayList<>(tagList);
+				List<com.fekozma.wallpaperchanger.models.Holiday> holidays = DBHolidays.db.getAllHolidays();
+				// Use stream to filter for distinct tag IDs to avoid duplicates
+				holidays.stream()
+					.map(com.fekozma.wallpaperchanger.models.Holiday::getTagId)
+					.distinct()
+					.forEach(tagList::add);
 			}
 			
 			return tagList;
@@ -171,6 +192,17 @@ public enum ImageCategories {
 			}
 		}
 		
+		// For HOLIDAY category, add holiday tags from DBHolidays
+		if (this == HOLIDAY) {
+			tagList = new ArrayList<>(tagList);
+			List<com.fekozma.wallpaperchanger.models.Holiday> holidays = DBHolidays.db.getAllHolidays();
+			// Use stream to filter for distinct tag IDs to avoid duplicates
+			holidays.stream()
+				.map(com.fekozma.wallpaperchanger.models.Holiday::getTagId)
+				.distinct()
+				.forEach(tagList::add);
+		}
+		
 		return tagList;
 	}
 
@@ -184,6 +216,17 @@ public enum ImageCategories {
 			for (com.fekozma.wallpaperchanger.models.TimeLabel label : userTimeLabels) {
 				tagList.add(label.getName());
 			}
+		}
+		
+		// For HOLIDAY category, add holiday names from DBHolidays
+		if (this == HOLIDAY) {
+			tagList = new ArrayList<>(tagList);
+			List<com.fekozma.wallpaperchanger.models.Holiday> holidays = DBHolidays.db.getAllHolidays();
+			// Use stream to filter for distinct holiday names to avoid duplicates
+			holidays.stream()
+				.map(com.fekozma.wallpaperchanger.models.Holiday::getName)
+				.distinct()
+				.forEach(tagList::add);
 		}
 		
 		return tagList;

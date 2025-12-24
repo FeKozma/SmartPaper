@@ -8,10 +8,12 @@ import androidx.work.*;
 import com.fekozma.wallpaperchanger.database.DBLog;
 import com.fekozma.wallpaperchanger.database.DBManager;
 import com.fekozma.wallpaperchanger.jobs.CleanLogsJob;
+import com.fekozma.wallpaperchanger.jobs.HolidayJob;
 import com.fekozma.wallpaperchanger.jobs.RandomImageJob;
 import com.fekozma.wallpaperchanger.util.ContextUtil;
 import com.fekozma.wallpaperchanger.util.SharedPreferencesUtil;
 
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import cat.ereza.customactivityoncrash.config.CaocConfig;
@@ -32,9 +34,18 @@ public class WallpaperApplication extends Application {
 		DBManager dbManager = new DBManager();
 		dbManager.checkAndUpgradeIfNeeded();
 		DBLog.db.addLog(DBLog.LEVELS.DEBUG, "---- Application started ----");
+		
 		new MainActivity();
 
 		setWallpaperJob(SharedPreferencesUtil.getString(SharedPreferencesUtil.KEYS.UPDATE_FREQUENCY));
+
+		WorkManager.getInstance(ContextUtil.getContext()).enqueueUniquePeriodicWork("holiday", ExistingPeriodicWorkPolicy.UPDATE,
+
+			new PeriodicWorkRequest.Builder(HolidayJob.class, 3, TimeUnit.DAYS)
+				.setConstraints(new Constraints.Builder()
+					.setRequiredNetworkType(NetworkType.CONNECTED)
+					.setRequiresDeviceIdle(false)
+					.build()).build());
 
 		WorkManager.getInstance(ContextUtil.getContext()).enqueueUniquePeriodicWork("clean_logs", ExistingPeriodicWorkPolicy.UPDATE,
 
